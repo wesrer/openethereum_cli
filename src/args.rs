@@ -1,5 +1,6 @@
 use crate::globals::*;
 use crate::parse_cli::*;
+use crate::subcommands::*;
 
 #[derive(Default, Debug, PartialEq)]
 pub struct Args {
@@ -236,7 +237,22 @@ impl Args {
         self.from_globals(cli_args);
     }
 
-    pub fn from_subcommands(&mut self, cli_args: ArgsInput) {}
+    pub fn from_subcommands(&mut self, cli_args: ArgsInput) {
+        match cli_args.subcommands {
+            SubCommands::Daemon(d) => {}
+            SubCommands::Wallet { wallet } => {}
+            SubCommands::Account { account } => {}
+            SubCommands::Import(i) => {}
+            SubCommands::Export { export } => {}
+            SubCommands::Signer(s) => {}
+            SubCommands::Tools(t) => {}
+            SubCommands::Restore(r) => {}
+            SubCommands::Snapshots(s) => {}
+            SubCommands::Db(db) => {}
+            SubCommands::ExportHardcodedSync => {}
+            SubCommands::Dapp(dapp) => {}
+        }
+    }
 
     pub fn from_globals(&mut self, cli_args: ArgsInput) {
         self.flag_no_download = cli_args.globals.operating.no_download;
