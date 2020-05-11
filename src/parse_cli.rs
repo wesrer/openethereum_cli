@@ -2,15 +2,12 @@ use structopt::StructOpt;
 
 use crate::globals::Globals;
 
-#[derive(Default, Debug, PartialEq)]
-struct Args {}
-
 #[derive(StructOpt, Debug)]
 pub struct ArgsInput {
-    #[structopt(flatten)]
-    globals: Globals,
     #[structopt(subcommand)]
     subcommands: SubCommands,
+    #[structopt(flatten)]
+    globals: Globals,
 }
 #[derive(StructOpt, Debug)]
 enum SubCommands {
@@ -43,7 +40,7 @@ enum SubCommands {
 #[derive(StructOpt, Debug)]
 #[structopt(about = "Use parity as a daemon")]
 struct Daemon {
-    #[structopt(name = "PID-FILE", help = "Path to the pid file")]
+    #[structopt(long = "pid-file", name = "PID-FILE", help = "Path to the pid file")]
     pid_file: Option<String>,
 }
 
@@ -69,7 +66,7 @@ enum Account {
 #[structopt(about = "Manage wallet")]
 enum Wallet {
     #[structopt(help = "Import wallet into the given chain (default: mainnet)")]
-    _Import {
+    Import {
         #[structopt(name = "PATH", help = "Path to the wallet")]
         path: Option<String>,
     },
@@ -87,7 +84,7 @@ struct Import {
     )]
     format: Option<String>,
 
-    #[structopt(name = "FILE", help = "Path to the file to import from")]
+    #[structopt(name = "FILE", long, help = "Path to the file to import from")]
     file: Option<String>,
 }
 
@@ -169,7 +166,7 @@ struct ExportState {
     )]
     format: Option<String>,
 
-    #[structopt(name = "FILE", help = "Path to the exported file")]
+    #[structopt(long = "state-file", name = "FILE", help = "Path to the exported file")]
     state_file: Option<String>,
 }
 
@@ -177,19 +174,19 @@ struct ExportState {
 #[structopt(about = "Manage Signer")]
 enum Signer {
     #[structopt(
-        help = "Generate a new signer-authentication token for the given --chain (default: mainnet)"
+        about = "Generate a new signer-authentication token for the given --chain (default: mainnet)"
     )]
     NewToken,
     #[structopt(
-        help = "List the signer-authentication tokens from given --chain (default: mainnet)"
+        about = "List the signer-authentication tokens from given --chain (default: mainnet)"
     )]
     List,
-    #[structopt(help = "Sign")]
+    #[structopt(about = "Sign")]
     Sign {
         #[structopt(name = "ID")]
         id: Option<usize>,
     },
-    #[structopt(help = "Reject")]
+    #[structopt(about = "Reject")]
     Reject {
         #[structopt(name = "ID")]
         id: Option<usize>,
