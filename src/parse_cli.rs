@@ -5,12 +5,12 @@ use crate::globals::Globals;
 #[derive(StructOpt, Debug)]
 pub struct ArgsInput {
     #[structopt(subcommand)]
-    subcommands: SubCommands,
+    pub subcommands: SubCommands,
     #[structopt(flatten)]
-    globals: Globals,
+    pub globals: Globals,
 }
 #[derive(StructOpt, Debug)]
-enum SubCommands {
+pub enum SubCommands {
     Daemon(Daemon),
     Wallet {
         #[structopt(subcommand)]
@@ -39,14 +39,14 @@ enum SubCommands {
 
 #[derive(StructOpt, Debug)]
 #[structopt(about = "Use parity as a daemon")]
-struct Daemon {
+pub struct Daemon {
     #[structopt(long = "pid-file", name = "PID-FILE", help = "Path to the pid file")]
-    pid_file: Option<String>,
+    pub pid_file: Option<String>,
 }
 
 #[derive(StructOpt, Debug)]
 #[structopt(about = "Manage accounts")]
-enum Account {
+pub enum Account {
     #[structopt(
         about = "Create a new account (and its associated key) for the given --chain [default: mainnet]"
     )]
@@ -64,7 +64,7 @@ enum Account {
 
 #[derive(StructOpt, Debug)]
 #[structopt(about = "Manage wallet")]
-enum Wallet {
+pub enum Wallet {
     #[structopt(help = "Import wallet into the given chain (default: mainnet)")]
     Import {
         #[structopt(name = "PATH", help = "Path to the wallet")]
@@ -76,21 +76,21 @@ enum Wallet {
 #[structopt(
     about = "Import blockchain data from a file to the given chain database (default: mainnet)"
 )]
-struct Import {
+pub struct Import {
     #[structopt(
         long,
         name = "FORMAT",
         help = "Import in a given format, FORMAT must be either 'hex' or 'binary'. (default: auto)"
     )]
-    format: Option<String>,
+    pub format: Option<String>,
 
     #[structopt(name = "FILE", long, help = "Path to the file to import from")]
-    file: Option<String>,
+    pub file: Option<String>,
 }
 
 #[derive(StructOpt, Debug)]
 #[structopt(about = "Export blockchain")]
-enum Export {
+pub enum Export {
     Blocks(ExportBlocks),
     State(ExportState),
 }
@@ -99,13 +99,13 @@ enum Export {
 #[structopt(
     about = "Export the blockchain blocks from the given chain database [default: mainnet] into a file. The command requires the chain to be synced with --fat-db on."
 )]
-struct ExportBlocks {
+pub struct ExportBlocks {
     #[structopt(
         long,
         name = "FORMAT",
         help = "Export in a given format. FORMAT must be 'hex' or 'binary'. [default: binary]"
     )]
-    format: Option<String>,
+    pub format: Option<String>,
 
     #[structopt(
         long,
@@ -113,7 +113,7 @@ struct ExportBlocks {
         help = "Export from block FROM_BLOCK, which may be an index or hash ",
         default_value = "1"
     )]
-    from: String,
+    pub from: String,
 
     #[structopt(
         long,
@@ -121,35 +121,35 @@ struct ExportBlocks {
         help = "Export to (including TO_BLOCK) block TO_BLOCK, which may be an index, hash or 'latest'",
         default_value = "latest"
     )]
-    to: String,
+    pub to: String,
     #[structopt(help = "Path to the exported file", name = "FILE")]
-    file: Option<String>,
+    pub file: Option<String>,
 }
 
 #[derive(StructOpt, Debug)]
 #[structopt(
     about = "Export the blockchain state from the given chain [default: mainnet] into a file. The command requires the chain to be synced with --fat-db on."
 )]
-struct ExportState {
+pub struct ExportState {
     #[structopt(long = "no-storage", help = "Don't export account storage.")]
-    no_storage: bool,
+    pub no_storage: bool,
 
     #[structopt(long = "no-code", help = "Don't export account code.")]
-    no_code: bool,
+    pub no_code: bool,
 
     #[structopt(
         long = "max-balance",
         name = "MAX_WEI",
         help = "Don't export accounts with balance greater than specified."
     )]
-    max_balance: Option<String>,
+    pub max_balance: Option<String>,
 
     #[structopt(
         long = "min-balance",
         name = "MIN_WEI",
         help = "Don't export accounts with balance less than specified."
     )]
-    min_balance: Option<String>,
+    pub min_balance: Option<String>,
 
     #[structopt(
         default_value = "latest",
@@ -157,17 +157,17 @@ struct ExportState {
         name = "BLOCK",
         help = "Take a snapshot at the given block, which may be an index, hash, or latest. Note that taking snapshots at non-recent blocks will only work with --pruning archive"
     )]
-    at: String,
+    pub at: String,
 
     #[structopt(
         long,
         name = "FORMAT",
         help = "Export in a given format. FORMAT must be either 'hex' or 'binary'. [default: binary]"
     )]
-    format: Option<String>,
+    pub format: Option<String>,
 
     #[structopt(long = "state-file", name = "FILE", help = "Path to the exported file")]
-    state_file: Option<String>,
+    pub state_file: Option<String>,
 }
 
 #[derive(StructOpt, Debug)]
