@@ -232,6 +232,13 @@ pub struct Args {
 
 impl Args {
     pub fn from_cli(&mut self, cli_args: ArgsInput) {
+        self.from_subcommands(cli_args.clone());
+        self.from_globals(cli_args);
+    }
+
+    pub fn from_subcommands(&mut self, cli_args: ArgsInput) {}
+
+    pub fn from_globals(&mut self, cli_args: ArgsInput) {
         self.flag_no_download = cli_args.globals.operating.no_download;
         self.flag_no_consensus = cli_args.globals.operating.no_consensus;
         self.flag_light = cli_args.globals.operating.light;
