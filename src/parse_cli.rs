@@ -1,15 +1,17 @@
 use structopt::StructOpt;
 
+use crate::globals::Globals;
+
+#[derive(Default, Debug, PartialEq)]
 struct Args {}
 
 #[derive(StructOpt, Debug)]
 pub struct ArgsInput {
+    #[structopt(flatten)]
+    globals: Globals,
     #[structopt(subcommand)]
     subcommands: SubCommands,
-    //     #[structopt(subcommand)]
-    //     globals: Globals,
 }
-
 #[derive(StructOpt, Debug)]
 enum SubCommands {
     Daemon(Daemon),
@@ -132,21 +134,21 @@ struct ExportBlocks {
     about = "Export the blockchain state from the given chain [default: mainnet] into a file. The command requires the chain to be synced with --fat-db on."
 )]
 struct ExportState {
-    #[structopt(long, help = "Don't export account storage.")]
+    #[structopt(long = "no-storage", help = "Don't export account storage.")]
     no_storage: bool,
 
-    #[structopt(long, help = "Don't export account code.")]
+    #[structopt(long = "no-code", help = "Don't export account code.")]
     no_code: bool,
 
     #[structopt(
-        long,
+        long = "max-balance",
         name = "MAX_WEI",
         help = "Don't export accounts with balance greater than specified."
     )]
     max_balance: Option<String>,
 
     #[structopt(
-        long,
+        long = "min-balance",
         name = "MIN_WEI",
         help = "Don't export accounts with balance less than specified."
     )]
@@ -241,13 +243,9 @@ enum Db {
         num: u32,
     },
 }
-
 #[derive(StructOpt, Debug)]
 #[structopt(about = "Manage Dapps")]
 struct Dapp {
     #[structopt(help = "Path to the dapps", name = "PATH")]
     path: Option<String>,
 }
-
-#[derive(StructOpt, Debug)]
-struct Globals {}
