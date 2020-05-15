@@ -1,0 +1,8 @@
+[parity]
+chain = "mainnet"
+
+[subcommands]
+
+[footprint]
+tracing = "off"
+pruning = "fast"

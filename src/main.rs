@@ -8,12 +8,5 @@ use parse_cli::ArgsInput;
 use structopt::StructOpt;
 
 fn main() {
-    let input = ArgsInput::from_args();
-    let mut args: Args = Default::default();
-
-    // println!("{:#?}", args);
-
-    args.from_cli(input);
-
-    println!("{:#?}", args);
+    println!("{:?}", Args::parse());
 }

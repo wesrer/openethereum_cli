@@ -1,6 +1,8 @@
+use serde_derive::Deserialize;
 use structopt::StructOpt;
+use structopt_toml::StructOptToml;
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 pub enum SubCommands {
     Daemon(Daemon),
     Wallet {
@@ -28,14 +30,14 @@ pub enum SubCommands {
     Dapp(Dapp),
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 #[structopt(about = "Use parity as a daemon")]
 pub struct Daemon {
     #[structopt(long = "pid-file", name = "PID-FILE", help = "Path to the pid file")]
     pub pid_file: Option<String>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 #[structopt(about = "Manage accounts")]
 pub enum Account {
     #[structopt(
@@ -53,7 +55,7 @@ pub enum Account {
     Import { path: Vec<String> },
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 #[structopt(about = "Manage wallet")]
 pub enum Wallet {
     #[structopt(help = "Import wallet into the given chain (default: mainnet)")]
@@ -63,7 +65,7 @@ pub enum Wallet {
     },
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 #[structopt(
     about = "Import blockchain data from a file to the given chain database (default: mainnet)"
 )]
@@ -79,14 +81,14 @@ pub struct Import {
     pub file: Option<String>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 #[structopt(about = "Export blockchain")]
 pub enum Export {
     Blocks(ExportBlocks),
     State(ExportState),
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 #[structopt(
     about = "Export the blockchain blocks from the given chain database [default: mainnet] into a file. The command requires the chain to be synced with --fat-db on."
 )]
@@ -117,7 +119,7 @@ pub struct ExportBlocks {
     pub file: Option<String>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 #[structopt(
     about = "Export the blockchain state from the given chain [default: mainnet] into a file. The command requires the chain to be synced with --fat-db on."
 )]
@@ -157,11 +159,11 @@ pub struct ExportState {
     )]
     pub format: Option<String>,
 
-    #[structopt(long = "state-file", name = "FILE", help = "Path to the exported file")]
-    pub state_file: Option<String>,
+    #[structopt(long = "file", name = "FILE", help = "Path to the exported file")]
+    pub file: Option<String>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 #[structopt(about = "Manage Signer")]
 pub enum Signer {
     #[structopt(
@@ -184,7 +186,7 @@ pub enum Signer {
     },
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 #[structopt(about = "Make a snapshot of the database of the given chain(default: mainnet)")]
 pub struct Snapshots {
     #[structopt(
@@ -192,21 +194,21 @@ pub struct Snapshots {
         name = "BLOCK",
         help = "Take a snapshot at the given block, which may be an index, hash, or latest. Note that taking snapshots at non-recent blocks will only work with --pruning archive"
     )]
-    at: String,
+    pub at: String,
     #[structopt(name = "FILE", help = "Path to the file to export to")]
-    file: String,
+    pub file: String,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 #[structopt(
     about = "Restore the databse of the given chain (default: mainnet) from a snapshot file"
 )]
 pub struct Restore {
     #[structopt(name = "FILE", help = "Path to the file to restore from")]
-    file: Option<String>,
+    pub file: Option<String>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 #[structopt(about = "Tools")]
 pub enum Tools {
     #[structopt(about = "Hash a file using the Keccak-256 algorithm")]
@@ -216,7 +218,7 @@ pub enum Tools {
     },
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 #[structopt(about = "Manage the Database representing the state of the blockchain on this system")]
 pub enum Db {
     #[structopt(about = "Clean the database of the given --chain (default: mainnet)")]
@@ -231,9 +233,10 @@ pub enum Db {
         num: u32,
     },
 }
-#[derive(StructOpt, Debug, Clone)]
+
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 #[structopt(about = "Manage Dapps")]
 pub struct Dapp {
     #[structopt(help = "Path to the dapps", name = "PATH")]
-    path: Option<String>,
+    pub path: Option<String>,
 }

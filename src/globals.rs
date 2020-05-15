@@ -1,6 +1,8 @@
+use serde_derive::Deserialize;
 use structopt::StructOpt;
+use structopt_toml::StructOptToml;
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct Globals {
     #[structopt(flatten)]
     pub operating: OperatingOptions,
@@ -58,7 +60,7 @@ pub struct Globals {
 }
 
 // TODO: Implement the default values
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct OperatingOptions {
     #[structopt(
         long = "no-download",
@@ -186,7 +188,7 @@ pub struct OperatingOptions {
     pub db_path: Option<String>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct ConvenienceOptions {
     #[structopt(
         long = "unsafe-expose",
@@ -212,7 +214,7 @@ pub struct ConvenienceOptions {
     pub ports_shift: u16,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct AccountOptions {
     #[structopt(
         long = "fast-unlock",
@@ -258,7 +260,7 @@ pub struct AccountOptions {
     pub password: Vec<String>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct PrivateTransactions {
     #[structopt(long = "private-tx-enabled", help = "Enable private transactions.")]
     pub private_enabled: bool,
@@ -312,7 +314,7 @@ pub struct PrivateTransactions {
     pub private_passwords: Option<String>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct UIOptons {
     #[structopt(
         default_value = "$BASE/signer",
@@ -322,7 +324,7 @@ pub struct UIOptons {
     pub ui_path: String,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct NetworkingOptions {
     #[structopt(
         long = "no-warp",
@@ -443,7 +445,7 @@ pub struct NetworkingOptions {
     pub reserved_peers: Option<String>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct IPCOptions {
     #[structopt(
         help = "Provide a file containing enodes, one per line. These nodes will always have a reserved slot on top of the normal maximum peers.",
@@ -486,7 +488,7 @@ impl<'a> IPCOptions {
     }
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct HTTP_JSON_RPC_Options {
     #[structopt(
         long = "json-rpc-allow-missing-blocks",
@@ -580,7 +582,7 @@ pub struct HTTP_JSON_RPC_Options {
     pub poll_lifetime: u32,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct WebsocketsOptions {
     #[structopt(help = "Disable the WebSockets JSON-RPC server.", long = "no-ws")]
     pub no_ws: bool,
@@ -634,7 +636,7 @@ pub struct WebsocketsOptions {
     pub ws_max_connections: usize,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct LightClientOptions {
     #[structopt(
         long = "on-demand-time-window",
@@ -672,7 +674,7 @@ pub struct LightClientOptions {
     pub on_demand_request_consecutive_failures: Option<usize>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct SecretStoreOptions {
     #[structopt(help = "Disable Secret Store functionality.", long = "no-secretstore")]
     pub no_secretstore: bool,
@@ -807,7 +809,7 @@ pub struct SecretStoreOptions {
     pub secretstore_admin_public: Option<String>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct SealingMiningOptions {
     #[structopt(
         help = "Force the node to author new blocks as if it were always sealing/mining.",
@@ -1069,7 +1071,7 @@ pub struct SealingMiningOptions {
     pub max_round_blocks_to_import: usize,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct InternalOptions {
     #[structopt(
         long = "can-restart",
@@ -1078,7 +1080,7 @@ pub struct InternalOptions {
     pub can_restart: bool,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct MiscellaneousOptions {
     #[structopt(help = "Don't use terminal color codes in output.", long = "no-color")]
     pub no_color: bool,
@@ -1103,7 +1105,7 @@ pub struct MiscellaneousOptions {
     pub log_file: Option<String>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct FootPrintOptions {
     #[structopt(
         help = "Automatically scale amount of verifier threads based on workload. Not guaranteed to be faster.",
@@ -1206,13 +1208,13 @@ pub struct FootPrintOptions {
     pub num_verifiers: Option<usize>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct ImportExportOptions {
     #[structopt(long = "no-seal-check", help = "Skip block seal check.")]
     pub no_seal_check: bool,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct SnapshotOptions {
     #[structopt(
         help = "Disable automated snapshots which usually occur once every 5000 blocks.",
@@ -1228,7 +1230,7 @@ pub struct SnapshotOptions {
     pub snapshot_threads: Option<usize>,
 }
 
-#[derive(StructOpt, Debug, Clone)]
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct LegacyOptions {
     // TODO: These options were hidden from config, so should we not include them?
     #[structopt(
