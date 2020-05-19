@@ -93,84 +93,70 @@ pub struct OperatingOptions {
     pub force_direct: bool,
 
     #[structopt(
-        default_value = "last",
         name = "MODE",
         long,
         help = "Set the operating mode. MODE can be one of: last - Uses the last-used mode, active if none; active - Parity continuously syncs the chain; passive - Parity syncs initially, then sleeps and wakes regularly to resync; dark - Parity syncs only when the JSON-RPC is active; offline - Parity doesn't sync."
     )]
-    pub mode: String,
+    pub mode: Option<String>,
 
     #[structopt(
-        default_value = "300",
         long = "mode-timeout",
         name = "TIMEOUT_IN_SECS",
         help = "Specify the number of seconds before inactivity timeout occurs when mode is dark or passive"
     )]
-    pub mode_timeout: u64,
+    pub mode_timeout: Option<u64>,
 
     #[structopt(
         long = "mode-alarm",
-        default_value = "3600",
         name = "ALARM_IN_SECS",
         help = "Specify the number of seconds before auto sleep reawake timeout occurs when mode is passive"
     )]
-    pub mode_alarm: u64,
+    pub mode_alarm: Option<u64>,
 
     #[structopt(
         long = "auto-update",
-        default_value = "critical",
         name = "SET",
         help = "Set a releases set to automatically update and install. SET can be one of: all - All updates in the our release track; critical - Only consensus/security updates; none - No updates will be auto-installed."
     )]
-    pub auto_update: String,
+    pub auto_update: Option<String>,
 
     #[structopt(
         long = "auto-update-delay",
-        default_value = "100",
         name = "DELAY_NUM",
         help = "Specify the maximum number of blocks used for randomly delaying updates."
     )]
-    pub auto_update_delay: u16,
+    pub auto_update_delay: Option<u16>,
 
     #[structopt(
         long = "auto-update-check-frequency",
-        default_value = "20",
         name = "FREQUENCY_NUM",
         help = "Specify the number of blocks between each auto-update check."
     )]
-    pub auto_update_check_frequency: u16,
+    pub auto_update_check_frequency: Option<u16>,
 
     #[structopt(
         long = "release-track",
-        default_value = "current",
         name = "TRACK",
         help = "Set which release track we should use for updates. TRACK can be one of: stable - Stable releases; nightly - Nightly releases (unstable); testing - Testing releases (do not use); current - Whatever track this executable was released on."
     )]
-    pub release_track: String,
+    pub release_track: Option<String>,
 
     #[structopt(
         long,
-        default_value = "foundation",
         name = "CHAIN",
         help = "Specify the blockchain type. CHAIN may be either a JSON chain specification file or ethereum, classic, classic-no-phoenix, poacore, xdai, volta, ewc, musicoin, ellaism, mix, callisto, ethercore, mordor, ropsten, kovan, rinkeby, goerli, kotti, poasokol, testnet, evantestcore, evancore or dev."
     )]
-    pub chain: String,
+    pub chain: Option<String>,
 
     #[structopt(
         long = "keys-path",
-        default_value = "$BASE/keys",
         name = "KEYS_PATH",
         help = "Specify the path for JSON key files to be found"
     )]
-    pub keys_path: String,
+    pub keys_path: Option<String>,
 
-    #[structopt(
-        name = "NAME",
-        long,
-        default_value = "",
-        help = "Specify your node's name."
-    )]
-    pub identity: String,
+    #[structopt(name = "NAME", long, help = "Specify your node's name.")]
+    pub identity: Option<String>,
 
     #[structopt(
         short = "d",
@@ -200,18 +186,16 @@ pub struct ConvenienceOptions {
         short,
         long,
         name = "CONFIG",
-        default_value = "$BASE/config.toml",
         help = "Specify a configuration. CONFIG may be either a configuration file or a preset: dev, insecure, dev-insecure, mining, or non-standard-ports."
     )]
-    pub config: String,
+    pub config: Option<String>,
 
     #[structopt(
         long = "ports-shift",
         name = "SHIFT",
-        default_value = "0",
         help = "Add SHIFT to all port numbers Parity is listening on. Includes network port and all servers (HTTP JSON-RPC, WebSockets JSON-RPC, SecretStore)."
     )]
-    pub ports_shift: u16,
+    pub ports_shift: Option<u16>,
 }
 
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
@@ -224,19 +208,17 @@ pub struct AccountOptions {
 
     #[structopt(
         long = "keys-iterations",
-        default_value = "10240",
         help = "Specify the number of iterations to use when deriving key from the password (bigger is more secure)",
         name = "NUM"
     )]
-    pub keys_iterations: u32,
+    pub keys_iterations: Option<u32>,
 
     #[structopt(
         long = "accounts-refresh",
-        default_value = "5",
         help = "Specify the cache time of accounts read from disk. If you manage thousands of accounts set this to 0 to disable refresh.",
         name = "TIME"
     )]
-    pub accounts_refresh: u64,
+    pub accounts_refresh: Option<u64>,
 
     #[structopt(
         long,
@@ -257,7 +239,7 @@ pub struct AccountOptions {
         name = "FILE",
         help = "Provide a file containing a password for unlocking an account. Leading and trailing whitespace is trimmed."
     )]
-    pub password: Vec<String>,
+    pub password: Vec<String>, // TODO: Why is this a Vec?
 }
 
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
@@ -317,11 +299,10 @@ pub struct PrivateTransactions {
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct UIOptons {
     #[structopt(
-        default_value = "$BASE/signer",
         long = "ui-path",
         help = "Specify directory where Trusted UIs tokens should be stored."
     )]
-    pub ui_path: String,
+    pub ui_path: Option<String>,
 }
 
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
@@ -355,20 +336,18 @@ pub struct NetworkingOptions {
     pub warp_barrier: Option<u64>,
 
     #[structopt(
-        default_value = "30303",
         long,
         name = "PORT",
         help = "Override the port on which the node should listen."
     )]
-    pub port: u16,
+    pub port: Option<u16>,
 
     #[structopt(
-        default_value = "all",
         long,
         name = "IP",
         help = "Network interfaces. Valid values are 'all', 'local' or the ip of the interface you want parity to listen to."
     )]
-    pub interface: String,
+    pub interface: Option<String>,
 
     #[structopt(
         long = "min-peers",
@@ -386,35 +365,31 @@ pub struct NetworkingOptions {
 
     #[structopt(
         long = "snapshot-peers",
-        default_value = "0",
         name = "SNAPSHOT_NUM",
         help = "Allow additional SNAPSHOT_NUM peers for a snapshot sync."
     )]
-    pub snapshot_peers: u16,
+    pub snapshot_peers: Option<u16>,
 
     #[structopt(
         long,
-        default_value = "any",
         help = "Specify method to use for determining public address. Must be one of: any, none, upnp, extip:<IP>.",
         name = "METHOD"
     )]
-    pub nat: String,
+    pub nat: Option<String>,
 
     #[structopt(
-        default_value = "all",
         long = "allow-ips",
         help = "Filter outbound connections. Must be one of: private - connect to private network IP addresses only; public - connect to public network IP addresses only; all - connect to any IP address.",
         name = "FILTER"
     )]
-    pub allow_ips: String,
+    pub allow_ips: Option<String>,
 
     #[structopt(
-        default_value = "64",
         long = "max-pending-peers",
         help = "Allow up to PENDING_NUM pending connections.",
         name = "PENDING_NUM"
     )]
-    pub max_pending_peers: u16,
+    pub max_pending_peers: Option<u16>,
 
     #[structopt(
         long = "network-id",
@@ -463,19 +438,17 @@ pub struct IPCOptions {
 
     #[structopt(
         long = "ipc-chmod",
-        default_value = "660",
         name = "IPC_CHMOD_NUM",
         help = "Specify octal value for ipc socket permissions (unix/bsd only)"
     )]
-    pub ipc_chmod: String,
+    pub ipc_chmod: Option<String>,
 
     #[structopt(
-        default_value = "web3,eth,pubsub,net,parity,parity_pubsub,parity_accounts,private,traces,rpc,parity_transactions_pool",
         long = "ipc-apis",
         name = "IPC_APIS",
         help = "Specify custom API set available via JSON-RPC over IPC using a comma-delimited list of API names. Possible names are: all, safe, web3, net, eth, pubsub, personal, signer, parity, parity_pubsub, parity_accounts, parity_set, traces, rpc, secretstore. You can also disable a specific API by putting '-' in the front, example: all,-personal. 'safe' enables the following APIs: web3, net, eth, pubsub, parity, parity_pubsub, traces, rpc"
     )]
-    pub ipc_apis: String,
+    pub ipc_apis: Option<String>,
 }
 
 impl<'a> IPCOptions {
@@ -513,35 +486,31 @@ pub struct HTTP_JSON_RPC_Options {
 
     #[structopt(
         long = "jsonrpc-port",
-        default_value = "8545",
         name = "JSONRPC_PORT",
         help = "Specify the port portion of the HTTP JSON-RPC API server."
     )]
-    pub jsonrpc_port: u16,
+    pub jsonrpc_port: Option<u16>,
 
     #[structopt(
-        default_value = "local",
         long = "jsonrpc-interface",
         name = "JSONRPC_IP",
         help = "Specify the hostname portion of the HTTP JSON-RPC API server, JSONRPC_IP should be an interface's IP address, or all (all interfaces) or local."
     )]
-    pub jsonrpc_interface: String,
+    pub jsonrpc_interface: Option<String>,
 
     #[structopt(
         long = "jsonrpc-apis",
         name = "JSONRPC_APIS",
-        default_value = "web3,eth,pubsub,net,parity,private,parity_pubsub,traces,rpc,parity_transactions_pool",
         help = "Specify the APIs available through the HTTP JSON-RPC interface using a comma-delimited list of API names. Possible names are: all, safe, debug, web3, net, eth, pubsub, personal, signer, parity, parity_pubsub, parity_accounts, parity_set, traces, rpc, secretstore. You can also disable a specific API by putting '-' in the front, example: all,-personal. 'safe' enables the following APIs: web3, net, eth, pubsub, parity, parity_pubsub, traces, rpc"
     )]
-    pub jsonrpc_apis: String,
+    pub jsonrpc_apis: Option<String>,
 
     #[structopt(
         long = "jsonrpc-hosts",
-        default_value = "none",
         name = "JSONRPC_HOSTS",
         help = "List of allowed Host header values. This option will validate the Host header sent by the browser, it is additional security against some attack vectors. Special options: \"all\", \"none\",."
     )]
-    pub jsonrpc_hosts: String,
+    pub jsonrpc_hosts: Option<String>,
 
     #[structopt(
         long = "jsonrpc-threads",
@@ -553,18 +522,16 @@ pub struct HTTP_JSON_RPC_Options {
     #[structopt(
         long = "jsonrpc-server-threads",
         name = "JSONRPC_SERVER_THREADS",
-        default_value = "4",
         help = "Enables multiple threads handling incoming connections for HTTP JSON-RPC server."
     )]
-    pub jsonrpc_server_threads: usize, // TODO: See if this breaks anything - this was originally an Option<usize>, but default_values is not compatible with that
+    pub jsonrpc_server_threads: Option<usize>,
 
     #[structopt(
         name = "JSONRPC_CORS_URL",
         long = "jsonrpc-cors",
-        default_value = "none",
         help = "Specify CORS header for HTTP JSON-RPC API responses. Special options: \"all\", \"none\"."
     )]
-    pub jsonrpc_cors: String,
+    pub jsonrpc_cors: Option<String>,
 
     #[structopt(
         long = "jsonrpc-max-payload",
@@ -574,66 +541,11 @@ pub struct HTTP_JSON_RPC_Options {
     pub jsonrpc_max_payload: Option<usize>,
 
     #[structopt(
-        default_value = "60",
         name = "POLL_LIFETIME_SECS",
         long = "poll-lifetime",
         help = "Set the RPC filter lifetime to S seconds. The filter has to be polled at least every S seconds , otherwise it is removed."
     )]
-    pub poll_lifetime: u32,
-}
-
-#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
-pub struct WebsocketsOptions {
-    #[structopt(help = "Disable the WebSockets JSON-RPC server.", long = "no-ws")]
-    pub no_ws: bool,
-
-    #[structopt(
-        default_value = "8546",
-        long = "ws-port",
-        name = "WS_PORT",
-        help = "Specify the port portion of the WebSockets JSON-RPC server."
-    )]
-    pub ws_port: u16,
-
-    #[structopt(
-        default_value = "local",
-        long = "ws-interface",
-        name = "WS_INTERFACE_IP",
-        help = "Specify the hostname portion of the WebSockets JSON-RPC server, IP should be an interface's IP address, or all (all interfaces) or local."
-    )]
-    pub ws_interface: String,
-
-    #[structopt(
-        default_value = "web3,eth,pubsub,net,parity,parity_pubsub,private,traces,rpc,parity_transactions_pool",
-        help = "Specify the JSON-RPC APIs available through the WebSockets interface using a comma-delimited list of API names. Possible names are: all, safe, web3, net, eth, pubsub, personal, signer, parity, parity_pubsub, parity_accounts, parity_set, traces, rpc, secretstore. You can also disable a specific API by putting '-' in the front, example: all,-personal. 'safe' enables the following APIs: web3, net, eth, pubsub, parity, parity_pubsub, traces, rpc",
-        long = "ws-apis",
-        name = "WS_APIS"
-    )]
-    pub ws_apis: String,
-
-    #[structopt(
-        default_value = "parity://*,chrome-extension://*,moz-extension://*",
-        help = "Specify Origin header values allowed to connect. Special options: \"all\", \"none\".",
-        long = "ws-origins",
-        name = "WS_ORIGINS_URL"
-    )]
-    pub ws_origins: String,
-
-    #[structopt(
-        default_value = "none",
-        help = "List of allowed Host header values. This option will validate the Host header sent by the browser, it is additional security against some attack vectors. Special options: \"all\", \"none\".",
-        long = "ws-hosts",
-        name = "WS_HOSTS"
-    )]
-    pub ws_hosts: String,
-
-    #[structopt(
-        default_value = "100",
-        help = "Maximum number of allowed concurrent WebSockets JSON-RPC connections.",
-        long = "ws=-connections",
-        name = "WS_MAX_CONN"
-    )]
-    pub ws_max_connections: usize,
+    pub poll_lifetime: Option<u32>,
 }
 
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
@@ -675,6 +587,54 @@ pub struct LightClientOptions {
 }
 
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
+pub struct WebsocketsOptions {
+    #[structopt(help = "Disable the WebSockets JSON-RPC server.", long = "no-ws")]
+    pub no_ws: bool,
+
+    #[structopt(
+        long = "ws-port",
+        name = "WS_PORT",
+        help = "Specify the port portion of the WebSockets JSON-RPC server."
+    )]
+    pub ws_port: Option<u16>,
+
+    #[structopt(
+        long = "ws-interface",
+        name = "WS_INTERFACE_IP",
+        help = "Specify the hostname portion of the WebSockets JSON-RPC server, IP should be an interface's IP address, or all (all interfaces) or local."
+    )]
+    pub ws_interface: Option<String>,
+
+    #[structopt(
+        help = "Specify the JSON-RPC APIs available through the WebSockets interface using a comma-delimited list of API names. Possible names are: all, safe, web3, net, eth, pubsub, personal, signer, parity, parity_pubsub, parity_accounts, parity_set, traces, rpc, secretstore. You can also disable a specific API by putting '-' in the front, example: all,-personal. 'safe' enables the following APIs: web3, net, eth, pubsub, parity, parity_pubsub, traces, rpc",
+        long = "ws-apis",
+        name = "WS_APIS"
+    )]
+    pub ws_apis: Option<String>,
+
+    #[structopt(
+        help = "Specify Origin header values allowed to connect. Special options: \"all\", \"none\".",
+        long = "ws-origins",
+        name = "WS_ORIGINS_URL"
+    )]
+    pub ws_origins: Option<String>,
+
+    #[structopt(
+        help = "List of allowed Host header values. This option will validate the Host header sent by the browser, it is additional security against some attack vectors. Special options: \"all\", \"none\".",
+        long = "ws-hosts",
+        name = "WS_HOSTS"
+    )]
+    pub ws_hosts: Option<String>,
+
+    #[structopt(
+        help = "Maximum number of allowed concurrent WebSockets JSON-RPC connections.",
+        long = "ws=-connections",
+        name = "WS_MAX_CONN"
+    )]
+    pub ws_max_connections: Option<usize>,
+}
+
+#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct SecretStoreOptions {
     #[structopt(help = "Disable Secret Store functionality.", long = "no-secretstore")]
     pub no_secretstore: bool,
@@ -689,19 +649,17 @@ pub struct SecretStoreOptions {
     pub no_secretstore_auto_migrate: bool,
 
     #[structopt(
-        default_value = "none",
         name = "HTTP_CORS_URLS",
         help = "Specify CORS header for Secret Store HTTP API responses. Special options: \"all\", \"none\".",
         long = "secretstore-http-cors"
     )]
-    pub secretstore_http_cors: String,
+    pub secretstore_http_cors: Option<String>,
 
     #[structopt(
-        default_value = "registry",
         help = "Secret Store permissioning contract address source: none, registry (contract address is read from 'secretstore_acl_checker' entry in registry) or address.",
         long = "secretstore-acl-contract"
     )]
-    pub secretstore_acl_contract: String, // TODO: Check if this still actually works, because in the original implementation, this was an Option<String>
+    pub secretstore_acl_contract: Option<String>,
 
     #[structopt(
         long = "secrestore-contract",
@@ -741,58 +699,51 @@ pub struct SecretStoreOptions {
     #[structopt(
         help = "Comma-separated list of other secret store cluster nodes in form NODE_PUBLIC_KEY_IN_HEX@NODE_IP_ADDR:NODE_PORT.",
         name = "SECRETSTORE_NODES",
-        long = "secretstore-nodes",
-        default_value = ""
+        long = "secretstore-nodes"
     )]
-    pub secretstore_nodes: String,
+    pub secretstore_nodes: Option<String>,
 
     #[structopt(
         name = "SET_CONTRACT_SOURCE",
         long = "secretstore-server-set-contract",
-        default_value = "registry",
         help = "Secret Store server set contract address source: none, registry (contract address is read from 'secretstore_server_set' entry in registry) or address."
     )]
-    pub secretstore_server_set_contract: String, // TODO: Check if this still works because the original implementation was Option<String>
+    pub secretstore_server_set_contract: Option<String>,
 
     #[structopt(
         help = "Specify the hostname portion for listening to Secret Store Key Server internal requests, IP should be an interface's IP address, or local.",
         name = "SECRETSTORE_IP",
-        long = "secretstore-interface-ip",
-        default_value = "local"
+        long = "secretstore-interface-ip"
     )]
-    pub secretstore_interface: String,
+    pub secretstore_interface: Option<String>,
 
     #[structopt(
-        default_value = "8083",
         long = "secretstore-port",
         name = "SECRETSTORE_PORT",
         help = "Specify the port portion for listening to Secret Store Key Server internal requests."
     )]
-    pub secretstore_port: u16,
+    pub secretstore_port: Option<u16>,
 
     #[structopt(
         long = "secretstore-http-interface",
-        default_value = "local",
         help = "Specify the hostname portion for listening to Secret Store Key Server HTTP requests, IP should be an interface's IP address, or local.",
         name = "SECRETSTORE_HTTP_INTERFACE"
     )]
-    pub secretstore_http_interface: String,
+    pub secretstore_http_interface: Option<String>,
 
     #[structopt(
-        default_value = "8082",
         long = "secretstore-http-port",
         name = "SECRETSTORE_HTTP_PORT",
         help = "Specify the port portion for listening to Secret Store Key Server HTTP requests."
     )]
-    pub secretstore_http_port: u16,
+    pub secretstore_http_port: Option<u16>,
 
     #[structopt(
-        default_value = "$BASE/secretstore",
         name = "SECRETSTORE_PATH",
         long = "secretstore-path",
         help = "Specify directory where Secret Store should save its data."
     )]
-    pub secretstore_path: String,
+    pub secretstore_path: Option<String>,
 
     #[structopt(
         long = "secretstore-secret",
@@ -866,99 +817,87 @@ pub struct SealingMiningOptions {
 
     #[structopt(
         long = "reseal-on-txs",
-        default_value = "own",
         name = "RESEAL_TXS_SET",
         help = "Specify which transactions should force the node to reseal a block. SET is one of: none - never reseal on new transactions; own - reseal only on a new local transaction; ext - reseal only on a new external transaction; all - reseal on all new transactions."
     )]
-    pub reseal_on_txs: String,
+    pub reseal_on_txs: Option<String>,
 
     #[structopt(
         help = "Specify the minimum time between reseals from incoming transactions. MS is time measured in milliseconds.",
         long = "reseal-min-period",
-        name = "RESEAL_MIN_MS",
-        default_value = "2000"
+        name = "RESEAL_MIN_MS"
     )]
-    pub reseal_min_period: u64,
+    pub reseal_min_period: Option<u64>,
 
     #[structopt(
         long = "reseal-max-period",
         name = "RESEAL_MAX_MS",
-        default_value = "120000",
         help = "Specify the maximum time between reseals from incoming transactions. MS is time measured in milliseconds."
     )]
-    pub reseal_max_period: u64,
+    pub reseal_max_period: Option<u64>,
 
     #[structopt(
         name = "WORK_QUEUE_SIZE_ITEMS",
         long = "work-queue-size",
-        default_value = "20",
         help = "Specify the number of historical work packages which are kept cached lest a solution is found for them later. High values take more memory but result in fewer unusable solutions."
     )]
-    pub work_queue_size: usize,
+    pub work_queue_size: Option<usize>,
 
     #[structopt(
         long = "relay-set",
-        default_value = "cheap",
         name = "RELAY_SET",
         help = "Set of transactions to relay. SET may be: cheap - Relay any transaction in the queue (this may include invalid transactions); strict - Relay only executed transactions (this guarantees we don't relay invalid transactions, but means we relay nothing if not mining); lenient - Same as strict when mining, and cheap when not."
     )]
-    pub relay_set: String,
+    pub relay_set: Option<String>,
 
     #[structopt(
         long = "usd-per-tx",
-        default_value = "0.0001",
         name = "USD_PER_TX",
         help = "Amount of USD to be paid for a basic transaction. The minimum gas price is set accordingly."
     )]
-    pub usd_per_tx: String,
+    pub usd_per_tx: Option<String>,
 
     #[structopt(
         help = "USD value of a single ETH. SOURCE may be either an amount in USD, a web service or 'auto' to use each web service in turn and fallback on the last known good value.",
         name = "USD_PER_ETH_SOURCE",
-        default_value = "auto",
         long = "usd-per-eth"
     )]
-    pub usd_per_eth: String,
+    pub usd_per_eth: Option<String>,
 
     #[structopt(
         long = "price-update-period",
-        default_value = "hourly",
         name = "PRICE_UPDATE_T",
         help = "PRICE_UPDATE_T will be allowed to pass between each gas price update. PRICE_UPDATE_T may be daily, hourly, a number of seconds, or a time string of the form \"2 days\", \"30 minutes\" etc.."
     )]
-    pub price_update_period: String,
+    pub price_update_period: Option<String>,
 
     #[structopt(
         help = "Amount of gas per block to target when sealing a new block.",
         long = "gas-floor-target",
-        default_value = "8000000",
         name = "GAS_FLOOR"
     )]
-    pub gas_floor_target: String,
+    pub gas_floor_target: Option<String>,
 
     #[structopt(
         help = "A cap on how large we will raise the gas limit per block due to transaction volume.",
         long = "gas-cap",
-        default_value = "10000000",
         name = "GAS_CAP"
     )]
-    pub gas_cap: String,
+    pub gas_cap: Option<String>,
 
     #[structopt(
         help = "Maximum amount of memory that can be used by the transaction queue. Setting this parameter to 0 disables limiting.",
         long = "tx-queue-mem-limit",
-        default_value = "4",
         name = "TX_QUEUE_LIMIT_MB"
     )]
-    pub tx_queue_mem_limit: u32,
+    pub tx_queue_mem_limit: Option<u32>,
 
     #[structopt(
         help = "Maximum amount of transactions in the queue (waiting to be included in next block).",
         long = "tx-queue-size",
-        default_value = "8192",
         name = "TX_QUEUE_SIZE_LIMIT"
     )]
-    pub tx_queue_size: usize,
+    pub tx_queue_size: Option<usize>,
 
     #[structopt(
         help = "Maximum number of transactions per sender in the queue. By default it's 1% of the entire queue, but not less than 16.",
@@ -977,26 +916,23 @@ pub struct SealingMiningOptions {
     #[structopt(
         help = "Prioritization strategy used to order transactions in the queue. S may be: gas_price - Prioritize txs with high gas price",
         long = "tx-queue-strategy",
-        default_value = "gas_price",
         name = "TX_QUEUE_S"
     )]
-    pub tx_queue_strategy: String,
+    pub tx_queue_strategy: Option<String>,
 
     #[structopt(
         help = "Interface address for Stratum server.",
         long = "stratum-interface",
-        default_value = "local",
         name = "STRATUM_IP"
     )]
-    pub stratum_interface: String,
+    pub stratum_interface: Option<String>,
 
     #[structopt(
         help = "Port for Stratum server to listen on.",
         long = "stratum-port",
-        default_value = "8008",
         name = "STRATUM_PORT"
     )]
-    pub stratum_port: u16,
+    pub stratum_port: Option<u16>,
 
     #[structopt(
         help = "Minimum amount of Wei per GAS to be paid for a transaction to be accepted for mining. Overrides --usd-per-tx.",
@@ -1008,10 +944,9 @@ pub struct SealingMiningOptions {
     #[structopt(
         help = "Set PCT percentile gas price value from last 100 blocks as default gas price when sending transactions.",
         long = "gas-price-percentile",
-        default_value = "50",
         name = "PCT"
     )]
-    pub gas_price_percentile: usize,
+    pub gas_price_percentile: Option<usize>,
 
     #[structopt(
         help = "Specify the block author (aka \"coinbase\") address for sending block rewards from sealed blocks. NOTE: MINING WILL NOT WORK WITHOUT THIS OPTION.",
@@ -1063,12 +998,11 @@ pub struct SealingMiningOptions {
     pub stratum_secret: Option<String>,
 
     #[structopt(
-        default_value = "12",
         long = "max-round-blocks-to-import",
         name = "MAX_ROUND_BLOCKS_S",
         help = "Maximal number of blocks to import for each import round."
     )]
-    pub max_round_blocks_to_import: usize,
+    pub max_round_blocks_to_import: Option<usize>,
 }
 
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
@@ -1116,82 +1050,72 @@ pub struct FootPrintOptions {
     #[structopt(
         help = "Indicates if full transaction tracing should be enabled. Works only if client had been fully synced with tracing enabled. BOOL may be one of auto, on, off. auto uses last used value of this option (off if it does not exist).",
         long,
-        name = "TRACING_BOOL",
-        default_value = "auto"
+        name = "TRACING_BOOL"
     )]
-    pub tracing: String,
+    pub tracing: Option<String>,
 
     #[structopt(
         long,
         name = "PRUNING_METHOD",
-        default_value = "auto",
         help = "Configure pruning of the state/storage trie. PRUNING_METHOD may be one of auto, archive, fast: archive - keep all state trie data. No pruning. fast - maintain journal overlay. Fast but 50MB used. auto - use the method most recently synced or default to fast if none synced."
     )]
-    pub pruning: String,
+    pub pruning: Option<String>,
 
     #[structopt(
         long = "pruning-history",
-        default_value = "128",
         help = "Set a minimum number of recent states to keep in memory when pruning is active.",
         name = "PRUNING_HISTORY_NUM"
     )]
-    pub pruning_history: u64,
+    pub pruning_history: Option<u64>,
 
     #[structopt(
         long = "pruning-memory",
         name = "PRUNING_MEMORY_MB",
-        help = "The ideal amount of memory in megabytes to use to store recent states. As many states as possible will be kept within this limit, and at least --pruning-history states will always be kept.",
-        default_value = "64"
+        help = "The ideal amount of memory in megabytes to use to store recent states. As many states as possible will be kept within this limit, and at least --pruning-history states will always be kept."
     )]
-    pub pruning_memory: usize,
+    pub pruning_memory: Option<usize>,
 
     #[structopt(
         help = "Override database cache size.",
         long = "cache-size-db",
-        default_value = "128",
         name = "CACHE_SIZE_DB_MB"
     )]
-    pub cache_size_db: u32,
+    pub cache_size_db: Option<u32>,
 
     #[structopt(
         help = "Specify the preferred size of the blockchain cache in megabytes.",
         long = "cache-size-blocks",
-        name = "CACHE_SIZE_BLOCKS_MB",
-        default_value = "8"
+        name = "CACHE_SIZE_BLOCKS_MB"
     )]
-    pub cache_size_blocks: u32,
+    pub cache_size_blocks: Option<u32>,
 
     #[structopt(
         help = "Specify the maximum size of memory to use for block queue.",
         long = "cache-size-queue",
-        name = "CACHE_SIZE_QUEUE_MB",
-        default_value = "40"
+        name = "CACHE_SIZE_QUEUE_MB"
     )]
-    pub cache_size_queue: u32,
+    pub cache_size_queue: Option<u32>,
 
     #[structopt(
         help = "Specify the maximum size of memory to use for the state cache.",
         long = "cache-size-state",
-        name = "CACHE_SIZE_STATE",
-        default_value = "25"
+        name = "CACHE_SIZE_STATE"
     )]
-    pub cache_size_state: u32,
+    pub cache_size_state: Option<u32>,
 
     #[structopt(
         help = "Database compaction type. TYPE may be one of: ssd - suitable for SSDs and fast HDDs; hdd - suitable for slow HDDs; auto - determine automatically.",
-        default_value = "auto",
         long = "db-compaction",
         name = "DB_COMPACTION_TYPE"
     )]
-    pub db_compaction: String,
+    pub db_compaction: Option<String>,
 
     #[structopt(
         help = "Build appropriate information to allow enumeration of all accounts and storage keys. Doubles the size of the state database. BOOL may be one of on, off or auto.",
-        default_value = "auto",
         long = "fat-db",
         name = "FAT_DB_BOOL"
     )]
-    pub fat_db: String,
+    pub fat_db: Option<String>,
 
     #[structopt(
         help = "Set total amount of discretionary memory to use for the entire system, overrides other cache and queue options.",
