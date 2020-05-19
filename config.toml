@@ -23,7 +23,7 @@ ports_shift                     = 0
 [account]
 enable_signing_queue            = false
 fast_unlock                     = false
-keys_iteration                  = 10240
+keys_iterations                 = 10240
 accounts_refresh                = 5
 password                        = []
 
@@ -56,7 +56,7 @@ ipc_apis                        = "web3,eth,pubsub,net,parity,parity_pubsub,pari
 jsonrpc_allow_missing_blocks    = false
 no_jsonrpc                      = false
 jsonrpc_no_keep_alive           = false
-jsonrpc_experimental               = false
+jsonrpc_experimental            = false
 jsonrpc_port                    = 8545
 jsonrpc_interface               = "local"
 jsonrpc_apis                    = "web3,eth,pubsub,net,parity,private,parity_pubsub,traces,rpc,parity_transactions_pool"

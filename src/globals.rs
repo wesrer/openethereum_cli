@@ -66,31 +66,31 @@ pub struct OperatingOptions {
         long = "no-download",
         help = "Normally new releases will be downloaded ready for updating. This disables it. Not recommended."
     )]
-    pub no_download: bool,
+    pub no_download: Option<bool>,
 
     #[structopt(
         long = "no-consensus",
         help = "Force the binary to run even if there are known issues regarding consensus. Not recommended."
     )]
-    pub no_consensus: bool,
+    pub no_consensus: Option<bool>,
 
     #[structopt(
         long,
         help = "Experimental: run in light client mode. Light clients synchronize a bare minimum of data and fetch necessary data on-demand from the network. Much lower in storage, potentially higher in bandwidth. Has no effect with subcommands."
     )]
-    pub light: bool,
+    pub light: Option<bool>,
 
     #[structopt(
         long = "no-hardcoded-sync",
         help = "By default, if there is no existing database the light client will automatically jump to a block hardcoded in the chain's specifications. This disables this feature."
     )]
-    pub no_hardcoded_sync: bool,
+    pub no_hardcoded_sync: Option<bool>,
 
     #[structopt(
         long = "force-direct",
         help = "Run the originally installed version of Parity, ignoring any updates that have since been installed."
     )]
-    pub force_direct: bool,
+    pub force_direct: Option<bool>,
 
     #[structopt(
         name = "MODE",
@@ -180,7 +180,7 @@ pub struct ConvenienceOptions {
         long = "unsafe-expose",
         help = "All servers will listen on external interfaces and will be remotely accessible. It's equivalent with setting the following: --[ws,jsonrpc,secretstore,stratum,dapps,secretstore-http]-interface=all --*-hosts=all    This option is UNSAFE and should be used with great care!"
     )]
-    pub unsafe_expose: bool,
+    pub unsafe_expose: Option<bool>,
 
     #[structopt(
         short,
@@ -202,9 +202,10 @@ pub struct ConvenienceOptions {
 pub struct AccountOptions {
     #[structopt(
         long = "fast-unlock",
+        name = "FAST_UNLOCK_BOOL",
         help = "Use drastically faster unlocking mode. This setting causes raw secrets to be stored unprotected in memory, so use with care."
     )]
-    pub fast_unlock: bool,
+    pub fast_unlock: Option<bool>,
 
     #[structopt(
         long = "keys-iterations",
@@ -232,7 +233,7 @@ pub struct AccountOptions {
         name = "BOOLEAN",
         help = "Enables the signing queue for external transaction signing either via CLI or personal_unlockAccount, turned off by default."
     )]
-    pub enable_signing_queue: bool,
+    pub enable_signing_queue: Option<bool>,
 
     #[structopt(
         long,
@@ -245,13 +246,13 @@ pub struct AccountOptions {
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct PrivateTransactions {
     #[structopt(long = "private-tx-enabled", help = "Enable private transactions.")]
-    pub private_enabled: bool,
+    pub private_enabled: Option<bool>,
 
     #[structopt(
         long = "private-state-offchain",
         help = "Store private state offchain (in the local DB)."
     )]
-    pub private_state_offchain: bool,
+    pub private_state_offchain: Option<bool>,
 
     #[structopt(
         long = "private-signer",
@@ -311,22 +312,22 @@ pub struct NetworkingOptions {
         long = "no-warp",
         help = "Disable syncing from the snapshot over the network."
     )]
-    pub no_warp: bool,
+    pub no_warp: Option<bool>,
 
     #[structopt(long = "no-discovery", help = "Disable new peer discovery.")]
-    pub no_discovery: bool,
+    pub no_discovery: Option<bool>,
 
     #[structopt(long = "reserved-only", help = "Connect only to reserved nodes.")]
-    pub reserved_only: bool,
+    pub reserved_only: Option<bool>,
 
     #[structopt(
         long = "no-ancient-blocks",
         help = "Disable downloading old blocks after snapshot restoration or warp sync. Not recommended."
     )]
-    pub no_ancient_blocks: bool,
+    pub no_ancient_blocks: Option<bool>,
 
     #[structopt(long = "no-serve-light", help = "Disable serving of light peers.")]
-    pub no_serve_light: bool,
+    pub no_serve_light: Option<bool>,
 
     #[structopt(
         long = "warp-barrier",
@@ -426,7 +427,7 @@ pub struct IPCOptions {
         help = "Provide a file containing enodes, one per line. These nodes will always have a reserved slot on top of the normal maximum peers.",
         long = "no-ipc"
     )]
-    pub no_ipc: bool,
+    pub no_ipc: Option<bool>,
 
     #[structopt(
         help = "Provide a file containing enodes, one per line. These nodes will always have a reserved slot on top of the normal maximum peers.",
@@ -466,22 +467,22 @@ pub struct HTTP_JSON_RPC_Options {
         long = "json-rpc-allow-missing-blocks",
         help = "RPC calls will return 'null' instead of an error if ancient block sync is still in progress and the block information requested could not be found"
     )]
-    pub jsonrpc_allow_missing_blocks: bool,
+    pub jsonrpc_allow_missing_blocks: Option<bool>,
 
     #[structopt(long = "no-jsonrpc", help = "Disable the HTTP JSON-RPC API server.")]
-    pub no_jsonrpc: bool,
+    pub no_jsonrpc: Option<bool>,
 
     #[structopt(
         long = "jsonrpc-no-keep-alive",
         help = "Disable HTTP/1.1 keep alive header. Disabling keep alive will prevent re-using the same TCP connection to fire multiple requests, recommended when using one request per connection."
     )]
-    pub jsonrpc_no_keep_alive: bool,
+    pub jsonrpc_no_keep_alive: Option<bool>,
 
     #[structopt(
         long = "jsonrpc-experimental",
         help = "Enable experimental RPCs. Enable to have access to methods from unfinalised EIPs in all namespaces"
     )]
-    pub jsonrpc_experimental: bool,
+    pub jsonrpc_experimental: Option<bool>,
 
     #[structopt(
         long = "jsonrpc-port",
@@ -588,7 +589,7 @@ pub struct LightClientOptions {
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct WebsocketsOptions {
     #[structopt(help = "Disable the WebSockets JSON-RPC server.", long = "no-ws")]
-    pub no_ws: bool,
+    pub no_ws: Option<bool>,
 
     #[structopt(
         long = "ws-port",
@@ -636,16 +637,16 @@ pub struct WebsocketsOptions {
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct SecretStoreOptions {
     #[structopt(help = "Disable Secret Store functionality.", long = "no-secretstore")]
-    pub no_secretstore: bool,
+    pub no_secretstore: Option<bool>,
 
     #[structopt(help = "Disable Secret Store HTTP API.", long = "no-secretstore-http")]
-    pub no_secretstore_http: bool,
+    pub no_secretstore_http: Option<bool>,
 
     #[structopt(
         help = "Do not run servers set change session automatically when servers set changes. This option has no effect when servers set is read from configuration file.",
         long = "no-secretstore-auto-migrate"
     )]
-    pub no_secretstore_auto_migrate: bool,
+    pub no_secretstore_auto_migrate: Option<bool>,
 
     #[structopt(
         name = "HTTP_CORS_URLS",
@@ -765,54 +766,54 @@ pub struct SealingMiningOptions {
         help = "Force the node to author new blocks as if it were always sealing/mining.",
         long = "force-sealing"
     )]
-    pub force_sealing: bool,
+    pub force_sealing: Option<bool>,
 
     #[structopt(
         help = "Force the node to author new blocks when a new uncle block is imported.",
         long = "reseal-on-uncle"
     )]
-    pub reseal_on_uncle: bool,
+    pub reseal_on_uncle: Option<bool>,
 
     #[structopt(
         help = "Move solved blocks from the work package queue instead of cloning them. This gives a slightly faster import speed, but means that extra solutions submitted for the same work package will go unused.",
         long = "remove-solved"
     )]
-    pub remove_solved: bool,
+    pub remove_solved: Option<bool>,
 
     #[structopt(
         help = "Local transactions sent through JSON-RPC (HTTP, WebSockets, etc) will be treated as 'external' if the sending account is unknown.",
         long = "tx-queue-no-unfamiliar-locals"
     )]
-    pub tx_queue_no_unfamiliar_locals: bool,
+    pub tx_queue_no_unfamiliar_locals: Option<bool>,
 
     #[structopt(
         help = "Disables transaction queue optimization to early reject transactions below minimal effective gas price. This allows local transactions to always enter the pool, despite it being full, but requires additional ecrecover on every transaction.",
         long = "tx-queue-no-early-reject"
     )]
-    pub tx_queue_no_early_reject: bool,
+    pub tx_queue_no_early_reject: Option<bool>,
 
     #[structopt(
         help = "Always refuse service transactions.",
         long = "refuse-service-transactions"
     )]
-    pub refuse_service_transactions: bool,
+    pub refuse_service_transactions: Option<bool>,
 
     #[structopt(
         help = "Pending block will be created with maximal possible gas limit and will execute all transactions in the queue. Note that such block is invalid and should never be attempted to be mined.",
         long = "infinite-pending-block"
     )]
-    pub infinite_pending_block: bool,
+    pub infinite_pending_block: Option<bool>,
 
     #[structopt(
         help = "Don't save pending local transactions to disk to be restored whenever the node restarts.",
         long = "no-persistent-txqueue"
     )]
-    pub no_persistent_txqueue: bool,
+    pub no_persistent_txqueue: Option<bool>,
 
     // For backward compatibility; Stratum should be enabled if the config file
     // contains a `[stratum]` section and it is not explicitly disabled (disable = true)
     #[structopt(help = "Run Stratum server for miner push notification.", long)]
-    pub stratum: bool,
+    pub stratum: Option<bool>,
 
     #[structopt(
         long = "reseal-on-txs",
@@ -1010,17 +1011,17 @@ pub struct InternalOptions {
         long = "can-restart",
         help = "Executable will auto-restart if exiting with 69"
     )]
-    pub can_restart: bool,
+    pub can_restart: Option<bool>,
 }
 
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct MiscellaneousOptions {
     #[structopt(help = "Don't use terminal color codes in output.", long = "no-color")]
-    pub no_color: bool,
+    pub no_color: Option<bool>,
 
     // version flag is automatically provided by structopt
     #[structopt(long = "no-config", help = "Don't load a configuration file.")]
-    pub no_config: bool,
+    pub no_config: Option<bool>,
 
     #[structopt(
         short = "l",
@@ -1044,7 +1045,7 @@ pub struct FootPrintOptions {
         help = "Automatically scale amount of verifier threads based on workload. Not guaranteed to be faster.",
         long = "scale-verifiers"
     )]
-    pub scale_verifiers: bool,
+    pub scale_verifiers: Option<bool>,
 
     #[structopt(
         help = "Indicates if full transaction tracing should be enabled. Works only if client had been fully synced with tracing enabled. BOOL may be one of auto, on, off. auto uses last used value of this option (off if it does not exist).",
@@ -1134,7 +1135,7 @@ pub struct FootPrintOptions {
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
 pub struct ImportExportOptions {
     #[structopt(long = "no-seal-check", help = "Skip block seal check.")]
-    pub no_seal_check: bool,
+    pub no_seal_check: Option<bool>,
 }
 
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
@@ -1143,7 +1144,7 @@ pub struct SnapshotOptions {
         help = "Disable automated snapshots which usually occur once every 5000 blocks.",
         long = "no-periodic-snapshots"
     )]
-    pub no_periodic_snapshot: bool,
+    pub no_periodic_snapshot: Option<bool>,
 
     #[structopt(
         help = "Enables multiple threads for snapshots creation.",
@@ -1160,13 +1161,13 @@ pub struct LegacyOptions {
         long,
         help = "Run in Geth-compatibility mode. Sets the IPC path to be the same as Geth's. Overrides the --ipc-path and --ipcpath options. Alters RPCs to reflect Geth bugs. Includes the personal_ RPC by default."
     )]
-    pub geth: bool,
+    pub geth: Option<bool>,
 
     #[structopt(
         help = "Attempt to import keys from Geth client.",
         long = "import-geth-keys"
     )]
-    pub import_geth_keys: bool,
+    pub import_geth_keys: Option<bool>,
     // Removed legacy flags
     // TODO: Figure out if it's okay to remove these flags
 }
