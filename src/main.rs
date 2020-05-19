@@ -8,5 +8,6 @@ use parse_cli::ArgsInput;
 use structopt::StructOpt;
 
 fn main() {
-    println!("{:?}", Args::parse());
+    Args::parse();
+    // println!("{:?}", Args::parse());
 }

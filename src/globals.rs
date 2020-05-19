@@ -429,12 +429,11 @@ pub struct IPCOptions {
     pub no_ipc: bool,
 
     #[structopt(
-        help="Provide a file containing enodes, one per line. These nodes will always have a reserved slot on top of the normal maximum peers.",
-        long="ipc-path",
-        name="IPC_PATH",
-        default_value=IPCOptions::ipc_path_default()
+        help = "Provide a file containing enodes, one per line. These nodes will always have a reserved slot on top of the normal maximum peers.",
+        long = "ipc-path",
+        name = "IPC_PATH"
     )]
-    pub ipc_path: String, // TODO: Check if the default value actually works like this
+    pub ipc_path: Option<String>,
 
     #[structopt(
         long = "ipc-chmod",
@@ -451,12 +450,12 @@ pub struct IPCOptions {
     pub ipc_apis: Option<String>,
 }
 
-impl<'a> IPCOptions {
-    fn ipc_path_default() -> &'a str {
+impl IPCOptions {
+    pub fn ipc_path_default() -> Option<String> {
         if cfg!(windows) {
-            r"\\.\pipe\jsonrpc.ipc"
+            Some(r"\\.\pipe\jsonrpc.ipc".to_string())
         } else {
-            "$BASE/jsonrpc.ipc"
+            Some("$BASE/jsonrpc.ipc".to_string())
         }
     }
 }
