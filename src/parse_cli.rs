@@ -5,7 +5,7 @@ use structopt_toml::StructOptToml;
 use crate::globals::Globals;
 use crate::subcommands::SubCommands;
 
-#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
+#[derive(StructOpt, Debug, Clone)]
 pub struct ArgsInput {
     #[structopt(subcommand)]
     pub subcommands: SubCommands,
