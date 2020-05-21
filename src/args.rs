@@ -394,7 +394,7 @@ impl Args {
             SubCommands::Snapshots(s) => {
                 self.cmd_snapshot = true;
                 self.arg_snapshot_at = s.at;
-                self.arg_snapshot_file = Some(s.file); // FIXME: is this a bug, why do we have to do this?
+                self.arg_snapshot_file = s.file; // FIXME: is this a bug, why do we have to do this?
             }
             SubCommands::Db(db) => {
                 self.cmd_db = true;
