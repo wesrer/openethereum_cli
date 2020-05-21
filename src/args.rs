@@ -247,6 +247,7 @@ impl Args {
 
         // This is the hardcoded config provided by openethereum, with
         // no special presets
+        //
         let fallback_config_path = "./config_default.toml";
 
         let default_config_path = match &raw_input.globals.convenience.config {
@@ -254,10 +255,11 @@ impl Args {
             Some(x) => {
                 match x.as_str() {
                     // presets
-                    "dev" => "./config_default.toml",
-                    "dev-insecure" => "./config_default.toml",
-                    "mining" => "./config_default.toml",
-                    "non-standard-ports" => "./config_default.toml",
+                    "dev" => "./config_dev.toml",
+                    "dev-insecure" => "./config_dev_insecure.toml",
+                    "insecure" => "./config_insecure.toml",
+                    "mining" => "./config_mining.toml",
+                    "non-standard-ports" => "./config_non_standard_ports.toml",
 
                     // user given config path
                     _ => x,

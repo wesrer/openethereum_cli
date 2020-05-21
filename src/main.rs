@@ -9,5 +9,5 @@ use structopt::StructOpt;
 
 fn main() {
     // Args::parse();
-    println!("{:?}", Args::parse());
+    println!("{:#?}", Args::parse());
 }
