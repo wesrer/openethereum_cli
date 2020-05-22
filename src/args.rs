@@ -287,12 +287,44 @@ impl Args {
         fallback_config_path: &str,
     ) -> Result<(Globals, Globals), ArgsError> {
         // FIXME: throw an error when file is not found
-        let default_config_file = fs::read_to_string(default_config_path).unwrap();
+        let default_config_file = match fs::read_to_string(default_config_path) {
+            Ok(x) => x,
+            Err(_) => {
+                return Err(ArgsError::ConfigReadError(format!(
+                    "Failure to read config file {}",
+                    default_config_path
+                )))
+            }
+        };
 
-        let fallback_config_file = fs::read_to_string(fallback_config_path).unwrap();
+        let fallback_config_file = match fs::read_to_string(fallback_config_path) {
+            Ok(x) => x,
+            Err(_) => {
+                return Err(ArgsError::ConfigReadError(format!(
+                    "Failure to read config file {}",
+                    fallback_config_path
+                )))
+            }
+        };
 
-        let default_config: Globals = toml::from_str(&default_config_file).unwrap();
-        let fallback_config: Globals = toml::from_str(&fallback_config_file).unwrap();
+        let default_config: Globals = match toml::from_str(&default_config_file) {
+            Ok(x) => x,
+            Err(_) => {
+                return Err(ArgsError::ConfigParseError(format!(
+                    "Failure to parse config path {}",
+                    default_config_path
+                )))
+            }
+        };
+        let fallback_config: Globals = match toml::from_str(&fallback_config_file) {
+            Ok(x) => x,
+            Err(_) => {
+                return Err(ArgsError::ConfigParseError(format!(
+                    "Failure to parse config path {}",
+                    fallback_config_path
+                )))
+            }
+        };
 
         Ok((default_config, fallback_config))
     }
