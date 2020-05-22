@@ -335,22 +335,23 @@ impl Args {
         default_globals: Globals,
         fallback_globals: Globals,
     ) {
-        self.from_subcommands(cli_args.clone());
+        self.from_subcommands(&cli_args);
         self.from_globals(cli_args, default_globals, fallback_globals);
     }
 
-    fn from_subcommands(&mut self, cli_args: ArgsInput) {
-        match cli_args.subcommands {
+    fn from_subcommands(&mut self, cli_args: &ArgsInput) {
+        match &cli_args.subcommands {
             SubCommands::Daemon(d) => {
                 self.cmd_daemon = true;
-                self.arg_daemon_pid_file = d.pid_file;
+
+                self.arg_daemon_pid_file = d.pid_file.clone();
             }
             SubCommands::Wallet { wallet } => {
                 self.cmd_wallet = true;
 
                 let Wallet::Import { path } = wallet;
                 self.cmd_wallet_import = true;
-                self.arg_wallet_import_path = path;
+                self.arg_wallet_import_path = (*path).clone();
             }
             SubCommands::Account { account } => {
                 self.cmd_account = true;
@@ -361,7 +362,7 @@ impl Args {
                     }
                     Account::Import { path } => {
                         self.cmd_account_import = true;
-                        self.arg_account_import_path = Some(path);
+                        self.arg_account_import_path = Some((*path).clone());
                     }
                     Account::List => {
                         self.cmd_account_list = true;
@@ -370,28 +371,28 @@ impl Args {
             }
             SubCommands::Import(i) => {
                 self.cmd_import = true;
-                self.arg_import_format = i.format;
-                self.arg_import_file = i.file;
+                self.arg_import_format = i.format.clone();
+                self.arg_import_file = i.file.clone();
             }
             SubCommands::Export { export } => {
                 self.cmd_export = true;
                 match export {
                     Export::Blocks(eb) => {
                         self.cmd_export_blocks = true;
-                        self.arg_export_blocks_format = eb.format;
-                        self.arg_export_blocks_from = eb.from;
-                        self.arg_export_blocks_to = eb.to;
-                        self.arg_export_blocks_file = eb.file;
+                        self.arg_export_blocks_format = eb.format.clone();
+                        self.arg_export_blocks_from = eb.from.clone();
+                        self.arg_export_blocks_to = eb.to.clone();
+                        self.arg_export_blocks_file = eb.file.clone();
                     }
                     Export::State(es) => {
                         self.cmd_export_state = true;
                         self.flag_export_state_no_storage = es.no_storage;
                         self.flag_export_state_no_code = es.no_code;
-                        self.arg_export_state_min_balance = es.min_balance;
-                        self.arg_export_state_max_balance = es.max_balance;
-                        self.arg_export_state_at = es.at;
-                        self.arg_export_state_format = es.format;
-                        self.arg_export_state_file = es.file;
+                        self.arg_export_state_min_balance = es.min_balance.clone();
+                        self.arg_export_state_max_balance = es.max_balance.clone();
+                        self.arg_export_state_at = es.at.clone();
+                        self.arg_export_state_format = es.format.clone();
+                        self.arg_export_state_file = es.file.clone();
                     }
                 }
             }
@@ -406,11 +407,11 @@ impl Args {
                     }
                     Signer::Sign { id } => {
                         self.cmd_signer_sign = true;
-                        self.arg_signer_sign_id = id;
+                        self.arg_signer_sign_id = *id;
                     }
                     Signer::Reject { id } => {
                         self.cmd_signer_reject = true;
-                        self.arg_signer_reject_id = id;
+                        self.arg_signer_reject_id = *id;
                     }
                 }
             }
@@ -419,16 +420,16 @@ impl Args {
                 self.cmd_tools_hash = true;
 
                 let Tools::Hash { file } = t;
-                self.arg_tools_hash_file = file;
+                self.arg_tools_hash_file = (*file).clone();
             }
             SubCommands::Restore(r) => {
                 self.cmd_restore = true;
-                self.arg_restore_file = r.file;
+                self.arg_restore_file = r.file.clone();
             }
             SubCommands::Snapshots(s) => {
                 self.cmd_snapshot = true;
-                self.arg_snapshot_at = s.at;
-                self.arg_snapshot_file = s.file; // FIXME: is this a bug, why do we have to do this?
+                self.arg_snapshot_at = s.at.clone();
+                self.arg_snapshot_file = s.file.clone();
             }
             SubCommands::Db(db) => {
                 self.cmd_db = true;
@@ -438,7 +439,7 @@ impl Args {
                     }
                     Db::Reset { num } => {
                         self.cmd_db_reset = true;
-                        self.arg_db_reset_num = num;
+                        self.arg_db_reset_num = *num;
                     }
                 }
             }
@@ -447,7 +448,7 @@ impl Args {
             }
             SubCommands::Dapp(dapp) => {
                 self.cmd_dapp = true;
-                self.arg_dapp_path = dapp.path;
+                self.arg_dapp_path = dapp.path.clone();
             }
         }
     }
