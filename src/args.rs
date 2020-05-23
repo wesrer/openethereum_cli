@@ -247,19 +247,19 @@ impl Args {
 
         // This is the hardcoded config provided by openethereum, with
         // no special presets
-        //
-        let fallback_config_path = "./config_default.toml";
+        // FIXME: conver this to relative pathing
+        let fallback_config_path = "./config/config_default.toml";
 
         let default_config_path = match &raw_input.globals.convenience.config {
             // the has given a custom configuration
             Some(x) => {
                 match x.as_str() {
                     // presets
-                    "dev" => "./config_dev.toml",
-                    "dev-insecure" => "./config_dev_insecure.toml",
-                    "insecure" => "./config_insecure.toml",
-                    "mining" => "./config_mining.toml",
-                    "non-standard-ports" => "./config_non_standard_ports.toml",
+                    "dev" => "./config/config_dev.toml",
+                    "dev-insecure" => "./config/config_dev_insecure.toml",
+                    "insecure" => "./config/config_insecure.toml",
+                    "mining" => "./config/config_mining.toml",
+                    "non-standard-ports" => "./config/config_non_standard_ports.toml",
 
                     // user given config path
                     _ => x,
@@ -269,7 +269,7 @@ impl Args {
             // no input options for configuration
             None => {
                 // We can make the default and the fallback the same
-                "./config_default.toml"
+                "./config/config_default.toml"
             }
         };
 
