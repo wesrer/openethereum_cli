@@ -195,8 +195,9 @@ pub struct Snapshots {
         help = "Take a snapshot at the given block, which may be an index, hash, or latest. Note that taking snapshots at non-recent blocks will only work with --pruning archive"
     )]
     pub at: String,
+    // FIXME: check if the default is correct
     #[structopt(name = "FILE", help = "Path to the file to export to")]
-    pub file: String,
+    pub file: Option<String>,
 }
 
 #[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
