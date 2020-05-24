@@ -4,7 +4,7 @@ use crate::subcommands::*;
 use std::fs;
 use structopt::StructOpt;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ArgsError {
     ConfigParseError(String),
     ConfigReadError(String),
@@ -245,9 +245,12 @@ impl Args {
 
         let raw_input = ArgsInput::from_args();
 
+        // let test_write_to_toml = toml::to_string(&raw_input.globals).unwrap();
+        // println!("{}", test_write_to_toml);
+
         // This is the hardcoded config provided by openethereum, with
         // no special presets
-        // FIXME: conver this to relative pathing
+        // FIXME: convert this to relative pathing
         let fallback_config_path = "./config/config_default.toml";
 
         let default_config_path = match &raw_input.globals.convenience.config {
@@ -282,7 +285,7 @@ impl Args {
         Ok(args)
     }
 
-    fn generate_default_configuration(
+    pub fn generate_default_configuration(
         default_config_path: &str,
         fallback_config_path: &str,
     ) -> Result<(Globals, Globals), ArgsError> {
@@ -291,7 +294,7 @@ impl Args {
             Ok(x) => x,
             Err(_) => {
                 return Err(ArgsError::ConfigReadError(format!(
-                    "Failure to read config file {}",
+                    "Failure to read config file: {}",
                     default_config_path
                 )))
             }
@@ -301,7 +304,7 @@ impl Args {
             Ok(x) => x,
             Err(_) => {
                 return Err(ArgsError::ConfigReadError(format!(
-                    "Failure to read config file {}",
+                    "Failure to read config file: {}",
                     fallback_config_path
                 )))
             }
@@ -311,7 +314,7 @@ impl Args {
             Ok(x) => x,
             Err(_) => {
                 return Err(ArgsError::ConfigParseError(format!(
-                    "Failure to parse config path {}",
+                    "Failure to parse config file: {}",
                     default_config_path
                 )))
             }
@@ -320,7 +323,7 @@ impl Args {
             Ok(x) => x,
             Err(_) => {
                 return Err(ArgsError::ConfigParseError(format!(
-                    "Failure to parse config path {}",
+                    "Failure to parse config file: {}",
                     fallback_config_path
                 )))
             }
@@ -341,115 +344,118 @@ impl Args {
 
     fn from_subcommands(&mut self, cli_args: &ArgsInput) {
         match &cli_args.subcommands {
-            SubCommands::Daemon(d) => {
-                self.cmd_daemon = true;
+            None => return,
+            Some(subcommand) => match &subcommand {
+                SubCommands::Daemon(d) => {
+                    self.cmd_daemon = true;
 
-                self.arg_daemon_pid_file = d.pid_file.clone();
-            }
-            SubCommands::Wallet { wallet } => {
-                self.cmd_wallet = true;
+                    self.arg_daemon_pid_file = d.pid_file.clone();
+                }
+                SubCommands::Wallet { wallet } => {
+                    self.cmd_wallet = true;
 
-                let Wallet::Import { path } = wallet;
-                self.cmd_wallet_import = true;
-                self.arg_wallet_import_path = (*path).clone();
-            }
-            SubCommands::Account { account } => {
-                self.cmd_account = true;
+                    let Wallet::Import { path } = wallet;
+                    self.cmd_wallet_import = true;
+                    self.arg_wallet_import_path = (*path).clone();
+                }
+                SubCommands::Account { account } => {
+                    self.cmd_account = true;
 
-                match account {
-                    Account::New => {
-                        self.cmd_account_new = true;
-                    }
-                    Account::Import { path } => {
-                        self.cmd_account_import = true;
-                        self.arg_account_import_path = Some((*path).clone());
-                    }
-                    Account::List => {
-                        self.cmd_account_list = true;
+                    match account {
+                        Account::New => {
+                            self.cmd_account_new = true;
+                        }
+                        Account::Import { path } => {
+                            self.cmd_account_import = true;
+                            self.arg_account_import_path = Some((*path).clone());
+                        }
+                        Account::List => {
+                            self.cmd_account_list = true;
+                        }
                     }
                 }
-            }
-            SubCommands::Import(i) => {
-                self.cmd_import = true;
-                self.arg_import_format = i.format.clone();
-                self.arg_import_file = i.file.clone();
-            }
-            SubCommands::Export { export } => {
-                self.cmd_export = true;
-                match export {
-                    Export::Blocks(eb) => {
-                        self.cmd_export_blocks = true;
-                        self.arg_export_blocks_format = eb.format.clone();
-                        self.arg_export_blocks_from = eb.from.clone();
-                        self.arg_export_blocks_to = eb.to.clone();
-                        self.arg_export_blocks_file = eb.file.clone();
-                    }
-                    Export::State(es) => {
-                        self.cmd_export_state = true;
-                        self.flag_export_state_no_storage = es.no_storage;
-                        self.flag_export_state_no_code = es.no_code;
-                        self.arg_export_state_min_balance = es.min_balance.clone();
-                        self.arg_export_state_max_balance = es.max_balance.clone();
-                        self.arg_export_state_at = es.at.clone();
-                        self.arg_export_state_format = es.format.clone();
-                        self.arg_export_state_file = es.file.clone();
+                SubCommands::Import(i) => {
+                    self.cmd_import = true;
+                    self.arg_import_format = i.format.clone();
+                    self.arg_import_file = i.file.clone();
+                }
+                SubCommands::Export { export } => {
+                    self.cmd_export = true;
+                    match export {
+                        Export::Blocks(eb) => {
+                            self.cmd_export_blocks = true;
+                            self.arg_export_blocks_format = eb.format.clone();
+                            self.arg_export_blocks_from = eb.from.clone();
+                            self.arg_export_blocks_to = eb.to.clone();
+                            self.arg_export_blocks_file = eb.file.clone();
+                        }
+                        Export::State(es) => {
+                            self.cmd_export_state = true;
+                            self.flag_export_state_no_storage = es.no_storage;
+                            self.flag_export_state_no_code = es.no_code;
+                            self.arg_export_state_min_balance = es.min_balance.clone();
+                            self.arg_export_state_max_balance = es.max_balance.clone();
+                            self.arg_export_state_at = es.at.clone();
+                            self.arg_export_state_format = es.format.clone();
+                            self.arg_export_state_file = es.file.clone();
+                        }
                     }
                 }
-            }
-            SubCommands::Signer(s) => {
-                self.cmd_signer = true;
-                match s {
-                    Signer::NewToken => {
-                        self.cmd_signer_new_token = true;
-                    }
-                    Signer::List => {
-                        self.cmd_signer_list = true;
-                    }
-                    Signer::Sign { id } => {
-                        self.cmd_signer_sign = true;
-                        self.arg_signer_sign_id = *id;
-                    }
-                    Signer::Reject { id } => {
-                        self.cmd_signer_reject = true;
-                        self.arg_signer_reject_id = *id;
+                SubCommands::Signer(s) => {
+                    self.cmd_signer = true;
+                    match s {
+                        Signer::NewToken => {
+                            self.cmd_signer_new_token = true;
+                        }
+                        Signer::List => {
+                            self.cmd_signer_list = true;
+                        }
+                        Signer::Sign { id } => {
+                            self.cmd_signer_sign = true;
+                            self.arg_signer_sign_id = *id;
+                        }
+                        Signer::Reject { id } => {
+                            self.cmd_signer_reject = true;
+                            self.arg_signer_reject_id = *id;
+                        }
                     }
                 }
-            }
-            SubCommands::Tools(t) => {
-                self.cmd_tools = true;
-                self.cmd_tools_hash = true;
+                SubCommands::Tools(t) => {
+                    self.cmd_tools = true;
+                    self.cmd_tools_hash = true;
 
-                let Tools::Hash { file } = t;
-                self.arg_tools_hash_file = (*file).clone();
-            }
-            SubCommands::Restore(r) => {
-                self.cmd_restore = true;
-                self.arg_restore_file = r.file.clone();
-            }
-            SubCommands::Snapshots(s) => {
-                self.cmd_snapshot = true;
-                self.arg_snapshot_at = s.at.clone();
-                self.arg_snapshot_file = s.file.clone();
-            }
-            SubCommands::Db(db) => {
-                self.cmd_db = true;
-                match db {
-                    Db::Kill => {
-                        self.cmd_db_kill = true;
-                    }
-                    Db::Reset { num } => {
-                        self.cmd_db_reset = true;
-                        self.arg_db_reset_num = *num;
+                    let Tools::Hash { file } = t;
+                    self.arg_tools_hash_file = (*file).clone();
+                }
+                SubCommands::Restore(r) => {
+                    self.cmd_restore = true;
+                    self.arg_restore_file = r.file.clone();
+                }
+                SubCommands::Snapshots(s) => {
+                    self.cmd_snapshot = true;
+                    self.arg_snapshot_at = s.at.clone();
+                    self.arg_snapshot_file = s.file.clone();
+                }
+                SubCommands::Db(db) => {
+                    self.cmd_db = true;
+                    match db {
+                        Db::Kill => {
+                            self.cmd_db_kill = true;
+                        }
+                        Db::Reset { num } => {
+                            self.cmd_db_reset = true;
+                            self.arg_db_reset_num = *num;
+                        }
                     }
                 }
-            }
-            SubCommands::ExportHardcodedSync => {
-                self.cmd_export_hardcoded_sync = true;
-            }
-            SubCommands::Dapp(dapp) => {
-                self.cmd_dapp = true;
-                self.arg_dapp_path = dapp.path.clone();
-            }
+                SubCommands::ExportHardcodedSync => {
+                    self.cmd_export_hardcoded_sync = true;
+                }
+                SubCommands::Dapp(dapp) => {
+                    self.cmd_dapp = true;
+                    self.arg_dapp_path = dapp.path.clone();
+                }
+            },
         }
     }
 
