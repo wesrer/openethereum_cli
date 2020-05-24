@@ -244,9 +244,9 @@ impl Args {
     pub fn parse() -> Result<Self, ArgsError> {
         let mut args: Args = Default::default();
 
-        let raw_input = ArgsInput::from_args();
+        let mut raw_input = ArgsInput::from_args();
 
-        Args::save_current_config(&raw_input.globals).unwrap();
+        Args::save_current_config(&mut raw_input.globals).unwrap();
 
         // This is the hardcoded config provided by openethereum, with
         // no special presets
@@ -285,16 +285,20 @@ impl Args {
         Ok(args)
     }
 
-    pub fn save_current_config(globals: &Globals) -> Result<(), ArgsError> {
-        if let Some(path) = &globals.convenience.config_generate {
-            println!("config generate detected some");
+    pub fn save_current_config(globals: &mut Globals) -> Result<(), ArgsError> {
+        // We don't want to print the config generate option on the generated toml, so we
+        // reset it
+        let config_generate = globals.convenience.config_generate.clone();
+        globals.convenience.config_generate = None;
+
+        if let Some(path) = &config_generate {
             let current_flags = match toml::to_string(globals) {
                 Ok(x) => x,
                 Err(_) => return Err(ArgsError::ConfigWriteError("Failed to generate valid config toml from current flags. Please report a bug if this error persists.".to_owned())),
             };
 
-            if let Err(_) = fs::write(path, current_flags) {
-                return Err(ArgsError::ConfigParseError("Failed to write config to given file path. Please try again with a valid path and config name.".to_owned()));
+            if let Err(_) = fs::write(&path, current_flags) {
+                return Err(ArgsError::ConfigParseError(format!("Failed to write config to given file path: {}. Please try again with a valid path and config name.", &path)));
             };
         }
         Ok(())
