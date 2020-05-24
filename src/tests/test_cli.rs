@@ -1,4 +1,5 @@
 use crate::args::Args;
+use crate::parse_cli::ArgsInput;
 use crate::args::ArgsError;
 use crate::globals::Globals;
 
@@ -47,23 +48,31 @@ fn test_reading_invalid_configurations() {
 }
 
 #[test]
-fn test_stratum_options() {
-    let stratum_missing_field = Args::generate_default_configuration(
-        "tests/stratum_missing_field.toml",
-        "config/config_default.toml",
-    );
-
-    let expected_1: Result<(Globals, Globals), ArgsError> = Err(ArgsError::ConfigReadError(
-        "Failure to read config file: tests/stratum_missing_field.toml".to_owned(),
-    ));
-
-    // assert_eq!(stratum_missing_field, expected_1);
-
+fn test_override_defaults_with_custom_config() {
     let stratum_enabled = Args::generate_default_configuration(
-        "src/tests/stratum_enabled.toml",
+        "src/tests/stratum_enabled_full.toml",
         "config/config_default.toml",
     ).unwrap();
 
     assert_eq!(stratum_enabled.0.sealing_mining.stratum, Some(true));
-    // assert!(false)
+    assert_eq!(stratum_enabled.0.sealing_mining.stratum_interface, Some("some interface".to_owned()));
+    assert_eq!(stratum_enabled.0.sealing_mining.stratum_port, Some(8007));
+    assert_eq!(stratum_enabled.0.sealing_mining.stratum_secret, Some("Yellow".to_owned()));
+}
+
+#[test]
+fn test_overwrite_custom_config_with_raw_flags() {
+    let mut raw: ArgsInput = Default::default();
+    let mut resolved: Args = Default::default();
+
+    raw.globals.sealing_mining.stratum_secret = Some("Changed".to_owned());
+
+    let (user_defaults, fallback) = Args::generate_default_configuration(
+        "src/tests/stratum_enabled_full.toml",
+        "config/config_default.toml",
+    ).unwrap();
+
+    resolved.from_cli(raw, user_defaults, fallback);
+
+    assert_eq!(resolved.arg_stratum_secret, Some("Changed".to_owned()));
 }

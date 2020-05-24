@@ -2,7 +2,7 @@ use serde_derive::{Deserialize, Serialize};
 use structopt::StructOpt;
 use structopt_toml::StructOptToml;
 
-#[derive(PartialEq, StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone)]
+#[derive(PartialEq, Default, StructOpt,  Serialize, Deserialize, Debug, Clone)]
 pub struct Globals {
     #[structopt(flatten)]
     pub operating: OperatingOptions,
@@ -60,7 +60,7 @@ pub struct Globals {
 }
 
 // TODO: Implement the default values
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct OperatingOptions {
     #[structopt(
         long = "no-download",
@@ -174,7 +174,7 @@ pub struct OperatingOptions {
     pub db_path: Option<String>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct ConvenienceOptions {
     #[structopt(
         long = "unsafe-expose",
@@ -205,7 +205,7 @@ pub struct ConvenienceOptions {
     pub ports_shift: Option<u16>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct AccountOptions {
     #[structopt(
         long = "fast-unlock",
@@ -250,7 +250,7 @@ pub struct AccountOptions {
     pub password: Vec<String>, // TODO: Why is this a Vec?
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct PrivateTransactions {
     #[structopt(long = "private-tx-enabled", help = "Enable private transactions.")]
     pub private_enabled: Option<bool>,
@@ -304,7 +304,7 @@ pub struct PrivateTransactions {
     pub private_passwords: Option<String>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct UIOptons {
     #[structopt(
         long = "ui-path",
@@ -313,7 +313,7 @@ pub struct UIOptons {
     pub ui_path: Option<String>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct NetworkingOptions {
     #[structopt(
         long = "no-warp",
@@ -428,7 +428,7 @@ pub struct NetworkingOptions {
     pub reserved_peers: Option<String>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct IPCOptions {
     #[structopt(
         help = "Provide a file containing enodes, one per line. These nodes will always have a reserved slot on top of the normal maximum peers.",
@@ -468,7 +468,7 @@ impl IPCOptions {
     }
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct HTTP_JSON_RPC_Options {
     #[structopt(
         long = "json-rpc-allow-missing-blocks",
@@ -555,7 +555,7 @@ pub struct HTTP_JSON_RPC_Options {
     pub poll_lifetime: Option<u32>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct LightClientOptions {
     #[structopt(
         long = "on-demand-time-window",
@@ -593,7 +593,7 @@ pub struct LightClientOptions {
     pub on_demand_request_consecutive_failures: Option<usize>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct WebsocketsOptions {
     #[structopt(help = "Disable the WebSockets JSON-RPC server.", long = "no-ws")]
     pub no_ws: Option<bool>,
@@ -641,7 +641,7 @@ pub struct WebsocketsOptions {
     pub ws_max_connections: Option<usize>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct SecretStoreOptions {
     #[structopt(help = "Disable Secret Store functionality.", long = "no-secretstore")]
     pub no_secretstore: Option<bool>,
@@ -767,7 +767,7 @@ pub struct SecretStoreOptions {
     pub secretstore_admin_public: Option<String>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct SealingMiningOptions {
     #[structopt(
         help = "Force the node to author new blocks as if it were always sealing/mining.",
@@ -1012,7 +1012,7 @@ pub struct SealingMiningOptions {
     pub max_round_blocks_to_import: Option<usize>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct InternalOptions {
     #[structopt(
         long = "can-restart",
@@ -1021,7 +1021,7 @@ pub struct InternalOptions {
     pub can_restart: Option<bool>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct MiscellaneousOptions {
     #[structopt(help = "Don't use terminal color codes in output.", long = "no-color")]
     pub no_color: Option<bool>,
@@ -1046,7 +1046,7 @@ pub struct MiscellaneousOptions {
     pub log_file: Option<String>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct FootPrintOptions {
     #[structopt(
         help = "Automatically scale amount of verifier threads based on workload. Not guaranteed to be faster.",
@@ -1139,13 +1139,13 @@ pub struct FootPrintOptions {
     pub num_verifiers: Option<usize>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct ImportExportOptions {
     #[structopt(long = "no-seal-check", help = "Skip block seal check.")]
     pub no_seal_check: Option<bool>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct SnapshotOptions {
     #[structopt(
         help = "Disable automated snapshots which usually occur once every 5000 blocks.",
@@ -1161,7 +1161,7 @@ pub struct SnapshotOptions {
     pub snapshot_threads: Option<usize>,
 }
 
-#[derive(StructOpt, StructOptToml, Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(StructOpt,  Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct LegacyOptions {
     // TODO: These options were hidden from config, so should we not include them?
     #[structopt(

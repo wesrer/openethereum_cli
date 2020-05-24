@@ -1,5 +1,0 @@
-# [sealing_mining]
-# stratum = true
-# stratum_interface = "some_interface"
-# stratum_port = 8007
-# stratum_secret = "Yellow"
