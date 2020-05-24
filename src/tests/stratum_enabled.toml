@@ -1,5 +1,5 @@
-[stratum]
-disable = false
-interface = "some_interface"
-port = 8007
-secret = "Yellow"
+# [sealing_mining]
+# stratum = true
+# stratum_interface = "some_interface"
+# stratum_port = 8007
+# stratum_secret = "Yellow"

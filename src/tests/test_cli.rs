@@ -57,13 +57,13 @@ fn test_stratum_options() {
         "Failure to read config file: tests/stratum_missing_field.toml".to_owned(),
     ));
 
-    let stratum_enabled = Args::generate_default_configuration(
-        "tests/stratum_enabled.toml",
-        "config/config_default.toml",
-    );
-
-    println!("{:#?}", stratum_enabled);
-
     // assert_eq!(stratum_missing_field, expected_1);
-    assert!(false)
+
+    let stratum_enabled = Args::generate_default_configuration(
+        "src/tests/stratum_enabled.toml",
+        "config/config_default.toml",
+    ).unwrap();
+
+    assert_eq!(stratum_enabled.0.sealing_mining.stratum, Some(true));
+    // assert!(false)
 }

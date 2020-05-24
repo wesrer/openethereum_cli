@@ -327,10 +327,11 @@ impl Args {
 
         let default_config: Globals = match toml::from_str(&default_config_file) {
             Ok(x) => x,
-            Err(_) => {
+            Err(e) => {
                 return Err(ArgsError::ConfigParseError(format!(
-                    "Failure to parse config file: {}",
-                    default_config_path
+                    "Failure to parse config file: {}, error: {}",
+                    default_config_path,
+                    e
                 )))
             }
         };

@@ -1,0 +1,41 @@
+[operating]
+
+[convenience]
+config_generate = "src/tests/stratum_enabled_full.toml"
+
+[account]
+password = []
+
+[private_transactions]
+
+[ui_options]
+
+[networking]
+
+[ipc]
+
+[http_json_rpc]
+
+[light_client]
+
+[websockets]
+
+[secret_store]
+
+[sealing_mining]
+stratum = true
+stratum_interface = "some interface"
+stratum_port = 8007
+stratum_secret = "Yellow"
+
+[internal]
+
+[miscellaneous]
+
+[footprint]
+
+[import_export]
+
+[snapshot]
+
+[legacy]
