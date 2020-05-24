@@ -8,6 +8,7 @@ use structopt::StructOpt;
 pub enum ArgsError {
     ConfigParseError(String),
     ConfigReadError(String),
+    ConfigWriteError(String),
 }
 
 #[derive(Default, Debug, PartialEq)]
@@ -245,8 +246,7 @@ impl Args {
 
         let raw_input = ArgsInput::from_args();
 
-        // let test_write_to_toml = toml::to_string(&raw_input.globals).unwrap();
-        // println!("{}", test_write_to_toml);
+        Args::save_current_config(&raw_input.globals).unwrap();
 
         // This is the hardcoded config provided by openethereum, with
         // no special presets
@@ -283,6 +283,21 @@ impl Args {
         args.from_cli(raw_input, default_config, fallback_config);
 
         Ok(args)
+    }
+
+    pub fn save_current_config(globals: &Globals) -> Result<(), ArgsError> {
+        if let Some(path) = &globals.convenience.config_generate {
+            println!("config generate detected some");
+            let current_flags = match toml::to_string(globals) {
+                Ok(x) => x,
+                Err(_) => return Err(ArgsError::ConfigWriteError("Failed to generate valid config toml from current flags. Please report a bug if this error persists.".to_owned())),
+            };
+
+            if let Err(_) = fs::write(path, current_flags) {
+                return Err(ArgsError::ConfigParseError("Failed to write config to given file path. Please try again with a valid path and config name.".to_owned()));
+            };
+        }
+        Ok(())
     }
 
     pub fn generate_default_configuration(

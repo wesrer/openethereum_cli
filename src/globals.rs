@@ -191,6 +191,13 @@ pub struct ConvenienceOptions {
     pub config: Option<String>,
 
     #[structopt(
+        long = "config-generate",
+        name = "PATH_TO_GENERATE_CONFIG_IN",
+        help = "Save the current flags and their values into a configuration for future use"
+    )]
+    pub config_generate: Option<String>,
+
+    #[structopt(
         long = "ports-shift",
         name = "SHIFT",
         help = "Add SHIFT to all port numbers Parity is listening on. Includes network port and all servers (HTTP JSON-RPC, WebSockets JSON-RPC, SecretStore)."

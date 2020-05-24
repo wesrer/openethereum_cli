@@ -1,10 +1,12 @@
-mod args;
+pub mod args;
 mod globals;
 mod parse_cli;
 mod subcommands;
+mod tests;
 
-use args::Args;
+pub use args::Args;
 
 fn main() {
-    println!("{:#?}", Args::parse());
+    Args::parse().unwrap();
+    // println!("{:#?}", Args::parse());
 }
