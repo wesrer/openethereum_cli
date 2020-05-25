@@ -47,5 +47,24 @@ fn test_overwrite_custom_config_with_raw_flags() {
 
 #[test]
 fn test_not_accepting_min_peers_bigger_than_max_peers() {
-    assert!(false);
+    // Setting up defaults
+    let mut raw: ArgsInput = Default::default();
+    let mut resolved: Args = Default::default();
+    let (user_defaults, fallback) = Args::generate_default_configuration(
+        "src/tests/stratum_enabled_full.toml",
+        "config/config_default.toml",
+    )
+    .unwrap();
+
+    raw.globals.networking.min_peers = Some(50);
+    raw.globals.networking.max_peers = Some(40);
+
+    let output = resolved.from_cli(raw, user_defaults, fallback);
+
+    assert_eq!(
+        output,
+        Err(ArgsError::PeerConfigurationError(
+            "max-peers need to be greater than or equal to min-peers".to_owned()
+        ))
+    );
 }

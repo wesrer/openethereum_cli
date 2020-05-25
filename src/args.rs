@@ -1,7 +1,7 @@
 use crate::globals::{Globals, IPCOptions};
 use crate::parse_cli::*;
 use crate::subcommands::*;
-use std::fs;
+use std::{fs, ops::Not};
 use structopt::StructOpt;
 
 #[derive(Debug, PartialEq)]
@@ -9,6 +9,7 @@ pub enum ArgsError {
     ConfigParseError(String),
     ConfigReadError(String),
     ConfigWriteError(String),
+    PeerConfigurationError(String),
 }
 
 #[derive(Default, Debug, PartialEq)]
@@ -277,10 +278,9 @@ impl Args {
         };
 
         let (default_config, fallback_config) =
-            Args::generate_default_configuration(default_config_path, fallback_config_path)
-                .unwrap();
+            Args::generate_default_configuration(default_config_path, fallback_config_path)?;
 
-        args.from_cli(raw_input, default_config, fallback_config);
+        args.from_cli(raw_input, default_config, fallback_config)?;
 
         Ok(args)
     }
@@ -356,14 +356,15 @@ impl Args {
         cli_args: ArgsInput,
         default_globals: Globals,
         fallback_globals: Globals,
-    ) {
-        self.from_subcommands(&cli_args);
-        self.from_globals(cli_args, default_globals, fallback_globals);
+    ) -> Result<(), ArgsError> {
+        self.from_subcommands(&cli_args)?;
+        self.from_globals(cli_args, default_globals, fallback_globals)?;
+        Ok(())
     }
 
-    fn from_subcommands(&mut self, cli_args: &ArgsInput) {
+    fn from_subcommands(&mut self, cli_args: &ArgsInput) -> Result<(), ArgsError> {
         match &cli_args.subcommands {
-            None => return,
+            None => {}
             Some(subcommand) => match &subcommand {
                 SubCommands::Daemon(d) => {
                     self.cmd_daemon = true;
@@ -476,6 +477,7 @@ impl Args {
                 }
             },
         }
+        Ok(())
     }
 
     fn select_value<T>(raw: Option<T>, default: Option<T>, fallback: Option<T>) -> T {
@@ -496,9 +498,23 @@ impl Args {
         }
     }
 
-    fn from_globals(&mut self, cli_args: ArgsInput, defaults: Globals, fallback: Globals) {
+    fn from_globals(
+        &mut self,
+        cli_args: ArgsInput,
+        defaults: Globals,
+        fallback: Globals,
+    ) -> Result<(), ArgsError> {
         self.flags_from_globals(&cli_args, &defaults, &fallback);
         self.options_from_globals(cli_args, defaults, fallback);
+
+        if let (Some(min_peers), Some(max_peers)) = (self.arg_min_peers, self.arg_max_peers) {
+            if (max_peers >= min_peers).not() {
+                return Err(ArgsError::PeerConfigurationError(
+                    "max-peers need to be greater than or equal to min-peers".to_owned(),
+                ));
+            }
+        }
+        Ok(())
     }
 
     fn options_from_globals(&mut self, cli_args: ArgsInput, defaults: Globals, fallback: Globals) {
