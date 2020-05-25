@@ -247,7 +247,7 @@ impl Args {
 
         let mut raw_input = ArgsInput::from_args();
 
-        Args::save_current_config(&mut raw_input.globals).unwrap();
+        Args::save_current_config(&mut raw_input.globals)?;
 
         // This is the hardcoded config provided by openethereum, with
         // no special presets
