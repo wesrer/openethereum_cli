@@ -1,6 +1,5 @@
 use serde_derive::{Deserialize, Serialize};
 use structopt::StructOpt;
-use structopt_toml::StructOptToml;
 
 #[derive(PartialEq, Default, StructOpt, Serialize, Deserialize, Debug, Clone)]
 pub struct Globals {
