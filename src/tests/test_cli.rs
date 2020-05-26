@@ -5,20 +5,17 @@ use crate::parse_cli::ArgsInput;
 
 #[test]
 fn test_override_defaults_with_custom_config() {
-    let stratum_enabled = Args::generate_default_configuration(
-        "src/tests/stratum_enabled_full.toml",
-        "config/config_default.toml",
-    )
-    .unwrap();
+    let test_config =
+        Args::generate_default_configuration("test_config.toml", "config_default.toml").unwrap();
 
-    assert_eq!(stratum_enabled.0.sealing_mining.stratum, true);
+    assert_eq!(test_config.0.sealing_mining.stratum, true);
     assert_eq!(
-        stratum_enabled.0.sealing_mining.stratum_interface,
+        test_config.0.sealing_mining.stratum_interface,
         Some("some interface".to_owned())
     );
-    assert_eq!(stratum_enabled.0.sealing_mining.stratum_port, Some(8007));
+    assert_eq!(test_config.0.sealing_mining.stratum_port, Some(8007));
     assert_eq!(
-        stratum_enabled.0.sealing_mining.stratum_secret,
+        test_config.0.sealing_mining.stratum_secret,
         Some("Yellow".to_owned())
     );
 }
@@ -34,11 +31,8 @@ fn test_overwrite_custom_config_with_raw_flags() {
     // In the default config file, there is a config value "Yellow" for the
     // same field, which it should ignore because of the presence of the raw
     // argument
-    let (user_defaults, fallback) = Args::generate_default_configuration(
-        "src/tests/stratum_enabled_full.toml",
-        "config/config_default.toml",
-    )
-    .unwrap();
+    let (user_defaults, fallback) =
+        Args::generate_default_configuration("test_config.toml", "config_default.toml").unwrap();
 
     resolved.from_cli(raw, user_defaults, fallback);
 
@@ -50,11 +44,8 @@ fn test_not_accepting_min_peers_bigger_than_max_peers() {
     // Setting up defaults
     let mut raw: ArgsInput = Default::default();
     let mut resolved: Args = Default::default();
-    let (user_defaults, fallback) = Args::generate_default_configuration(
-        "src/tests/stratum_enabled_full.toml",
-        "config/config_default.toml",
-    )
-    .unwrap();
+    let (user_defaults, fallback) =
+        Args::generate_default_configuration("test_config.toml", "config_default.toml").unwrap();
 
     raw.globals.networking.min_peers = Some(50);
     raw.globals.networking.max_peers = Some(40);

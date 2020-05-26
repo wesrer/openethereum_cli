@@ -1,3 +1,4 @@
+use crate::config::get_config;
 use crate::globals::{Globals, IPCOptions};
 use crate::parse_cli::*;
 use crate::subcommands::*;
@@ -252,18 +253,18 @@ impl Args {
         // This is the hardcoded config provided by openethereum, with
         // no special presets
         // FIXME: convert this to relative pathing
-        let fallback_config_path = "./config/config_default.toml";
+        let fallback_config_path = "config_default.toml";
 
         let default_config_path = match &raw_input.globals.convenience.config {
             // the has given a custom configuration
             Some(x) => {
                 match x.as_str() {
                     // presets
-                    "dev" => "./config/config_dev.toml",
-                    "dev-insecure" => "./config/config_dev_insecure.toml",
-                    "insecure" => "./config/config_insecure.toml",
-                    "mining" => "./config/config_mining.toml",
-                    "non-standard-ports" => "./config/config_non_standard_ports.toml",
+                    "dev" => "config_dev.toml",
+                    "dev-insecure" => "config_dev_insecure.toml",
+                    "insecure" => "config_insecure.toml",
+                    "mining" => "config_mining.toml",
+                    "non-standard-ports" => "config_non_standard_ports.toml",
 
                     // user given config path
                     _ => x,
@@ -273,7 +274,7 @@ impl Args {
             // no input options for configuration
             None => {
                 // We can make the default and the fallback the same
-                "./config/config_default.toml"
+                "config_default.toml"
             }
         };
 
@@ -309,25 +310,8 @@ impl Args {
         fallback_config_path: &str,
     ) -> Result<(Globals, Globals), ArgsError> {
         // FIXME: throw an error when file is not found
-        let default_config_file = match fs::read_to_string(default_config_path) {
-            Ok(x) => x,
-            Err(_) => {
-                return Err(ArgsError::ConfigReadError(format!(
-                    "Failure to read config file: {}",
-                    default_config_path
-                )))
-            }
-        };
-
-        let fallback_config_file = match fs::read_to_string(fallback_config_path) {
-            Ok(x) => x,
-            Err(_) => {
-                return Err(ArgsError::ConfigReadError(format!(
-                    "Failure to read config file: {}",
-                    fallback_config_path
-                )))
-            }
-        };
+        let default_config_file = get_config(default_config_path)?;
+        let fallback_config_file = get_config(fallback_config_path)?;
 
         let default_config: Globals = match toml::from_str(&default_config_file) {
             Ok(x) => x,

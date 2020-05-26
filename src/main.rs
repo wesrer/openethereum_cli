@@ -1,15 +1,14 @@
 pub mod args;
+mod config;
 mod globals;
 mod parse_cli;
 mod subcommands;
 mod tests;
-mod config;
 
 pub use args::Args;
+pub use config::get_config;
 
 fn main() {
-
-    crate::config::print_default();
-    // Args::parse().unwrap();
+    Args::parse().unwrap();
     // println!("{:#?}", Args::parse());
 }
