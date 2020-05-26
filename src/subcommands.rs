@@ -1,6 +1,5 @@
 use serde_derive::Deserialize;
 use structopt::StructOpt;
-use structopt_toml::StructOptToml;
 
 #[derive(StructOpt, Deserialize, Debug, Clone)]
 pub enum SubCommands {
@@ -30,7 +29,7 @@ pub enum SubCommands {
     Dapp(Dapp),
 }
 
-#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 #[structopt(about = "Use parity as a daemon")]
 pub struct Daemon {
     #[structopt(long = "pid-file", name = "PID-FILE", help = "Path to the pid file")]
@@ -65,7 +64,7 @@ pub enum Wallet {
     },
 }
 
-#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 #[structopt(
     about = "Import blockchain data from a file to the given chain database (default: mainnet)"
 )]
@@ -88,7 +87,7 @@ pub enum Export {
     State(ExportState),
 }
 
-#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 #[structopt(
     about = "Export the blockchain blocks from the given chain database [default: mainnet] into a file. The command requires the chain to be synced with --fat-db on."
 )]
@@ -119,7 +118,7 @@ pub struct ExportBlocks {
     pub file: Option<String>,
 }
 
-#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 #[structopt(
     about = "Export the blockchain state from the given chain [default: mainnet] into a file. The command requires the chain to be synced with --fat-db on."
 )]
@@ -186,7 +185,7 @@ pub enum Signer {
     },
 }
 
-#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 #[structopt(about = "Make a snapshot of the database of the given chain(default: mainnet)")]
 pub struct Snapshots {
     #[structopt(
@@ -200,7 +199,7 @@ pub struct Snapshots {
     pub file: Option<String>,
 }
 
-#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 #[structopt(
     about = "Restore the databse of the given chain (default: mainnet) from a snapshot file"
 )]
@@ -235,7 +234,7 @@ pub enum Db {
     },
 }
 
-#[derive(StructOpt, StructOptToml, Deserialize, Debug, Clone)]
+#[derive(StructOpt, Deserialize, Debug, Clone)]
 #[structopt(about = "Manage Dapps")]
 pub struct Dapp {
     #[structopt(help = "Path to the dapps", name = "PATH")]
