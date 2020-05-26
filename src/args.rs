@@ -1,7 +1,7 @@
 use crate::globals::{Globals, IPCOptions};
 use crate::parse_cli::*;
 use crate::subcommands::*;
-use std::fs;
+use std::{fs, ops::Not};
 use structopt::StructOpt;
 
 #[derive(Debug, PartialEq)]
@@ -9,6 +9,7 @@ pub enum ArgsError {
     ConfigParseError(String),
     ConfigReadError(String),
     ConfigWriteError(String),
+    PeerConfigurationError(String),
 }
 
 #[derive(Default, Debug, PartialEq)]
@@ -246,7 +247,7 @@ impl Args {
 
         let mut raw_input = ArgsInput::from_args();
 
-        Args::save_current_config(&mut raw_input.globals).unwrap();
+        Args::save_current_config(&mut raw_input.globals)?;
 
         // This is the hardcoded config provided by openethereum, with
         // no special presets
@@ -277,10 +278,9 @@ impl Args {
         };
 
         let (default_config, fallback_config) =
-            Args::generate_default_configuration(default_config_path, fallback_config_path)
-                .unwrap();
+            Args::generate_default_configuration(default_config_path, fallback_config_path)?;
 
-        args.from_cli(raw_input, default_config, fallback_config);
+        args.from_cli(raw_input, default_config, fallback_config)?;
 
         Ok(args)
     }
@@ -334,8 +334,7 @@ impl Args {
             Err(e) => {
                 return Err(ArgsError::ConfigParseError(format!(
                     "Failure to parse config file: {}, error: {}",
-                    default_config_path,
-                    e
+                    default_config_path, e
                 )))
             }
         };
@@ -357,14 +356,15 @@ impl Args {
         cli_args: ArgsInput,
         default_globals: Globals,
         fallback_globals: Globals,
-    ) {
-        self.from_subcommands(&cli_args);
-        self.from_globals(cli_args, default_globals, fallback_globals);
+    ) -> Result<(), ArgsError> {
+        self.from_subcommands(&cli_args)?;
+        self.from_globals(cli_args, default_globals, fallback_globals)?;
+        Ok(())
     }
 
-    fn from_subcommands(&mut self, cli_args: &ArgsInput) {
+    fn from_subcommands(&mut self, cli_args: &ArgsInput) -> Result<(), ArgsError> {
         match &cli_args.subcommands {
-            None => return,
+            None => {}
             Some(subcommand) => match &subcommand {
                 SubCommands::Daemon(d) => {
                     self.cmd_daemon = true;
@@ -477,6 +477,7 @@ impl Args {
                 }
             },
         }
+        Ok(())
     }
 
     fn select_value<T>(raw: Option<T>, default: Option<T>, fallback: Option<T>) -> T {
@@ -497,7 +498,26 @@ impl Args {
         }
     }
 
-    fn from_globals(&mut self, cli_args: ArgsInput, defaults: Globals, fallback: Globals) {
+    fn from_globals(
+        &mut self,
+        cli_args: ArgsInput,
+        defaults: Globals,
+        fallback: Globals,
+    ) -> Result<(), ArgsError> {
+        self.flags_from_globals(&cli_args, &defaults, &fallback);
+        self.options_from_globals(cli_args, defaults, fallback);
+
+        if let (Some(min_peers), Some(max_peers)) = (self.arg_min_peers, self.arg_max_peers) {
+            if (max_peers >= min_peers).not() {
+                return Err(ArgsError::PeerConfigurationError(
+                    "max-peers need to be greater than or equal to min-peers".to_owned(),
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    fn options_from_globals(&mut self, cli_args: ArgsInput, defaults: Globals, fallback: Globals) {
         // Unnatural cases
 
         self.arg_ipc_path = Args::select_value(
@@ -506,213 +526,6 @@ impl Args {
             None, // We don't care about fallback in this case, since the previous operation is infallible
         );
         self.arg_password = cli_args.globals.account.password;
-
-        // flags and options
-
-        self.flag_fast_unlock = Args::select_value(
-            cli_args.globals.account.fast_unlock,
-            defaults.account.fast_unlock,
-            fallback.account.fast_unlock,
-        );
-
-        self.flag_no_serve_light = Args::select_value(
-            cli_args.globals.networking.no_serve_light,
-            defaults.networking.no_serve_light,
-            fallback.networking.no_serve_light,
-        );
-        self.flag_no_secretstore = Args::select_value(
-            cli_args.globals.secret_store.no_secretstore,
-            defaults.secret_store.no_secretstore,
-            fallback.secret_store.no_secretstore,
-        );
-        self.flag_no_secretstore_http = Args::select_value(
-            cli_args.globals.secret_store.no_secretstore_http,
-            defaults.secret_store.no_secretstore_http,
-            fallback.secret_store.no_secretstore_http,
-        );
-        self.flag_no_secretstore_auto_migrate = Args::select_value(
-            cli_args.globals.secret_store.no_secretstore_auto_migrate,
-            defaults.secret_store.no_secretstore_auto_migrate,
-            fallback.secret_store.no_secretstore_auto_migrate,
-        );
-        self.flag_no_ws = Args::select_value(
-            cli_args.globals.websockets.no_ws,
-            defaults.websockets.no_ws,
-            fallback.websockets.no_ws,
-        );
-        self.flag_no_ipc = Args::select_value(
-            cli_args.globals.ipc.no_ipc,
-            defaults.ipc.no_ipc,
-            fallback.ipc.no_ipc,
-        );
-        self.flag_force_sealing = Args::select_value(
-            cli_args.globals.sealing_mining.force_sealing,
-            defaults.sealing_mining.force_sealing,
-            fallback.sealing_mining.force_sealing,
-        );
-        self.flag_reseal_on_uncle = Args::select_value(
-            cli_args.globals.sealing_mining.reseal_on_uncle,
-            defaults.sealing_mining.reseal_on_uncle,
-            fallback.sealing_mining.reseal_on_uncle,
-        );
-        self.flag_remove_solved = Args::select_value(
-            cli_args.globals.sealing_mining.remove_solved,
-            defaults.sealing_mining.remove_solved,
-            fallback.sealing_mining.remove_solved,
-        );
-        self.flag_tx_queue_no_unfamiliar_locals = Args::select_value(
-            cli_args
-                .globals
-                .sealing_mining
-                .tx_queue_no_unfamiliar_locals,
-            defaults.sealing_mining.tx_queue_no_unfamiliar_locals,
-            fallback.sealing_mining.tx_queue_no_unfamiliar_locals,
-        );
-        self.flag_tx_queue_no_early_reject = Args::select_value(
-            cli_args.globals.sealing_mining.tx_queue_no_early_reject,
-            defaults.sealing_mining.tx_queue_no_early_reject,
-            fallback.sealing_mining.tx_queue_no_early_reject,
-        );
-        self.flag_refuse_service_transactions = Args::select_value(
-            cli_args.globals.sealing_mining.refuse_service_transactions,
-            defaults.sealing_mining.refuse_service_transactions,
-            fallback.sealing_mining.refuse_service_transactions,
-        );
-        self.flag_infinite_pending_block = Args::select_value(
-            cli_args.globals.sealing_mining.infinite_pending_block,
-            defaults.sealing_mining.infinite_pending_block,
-            fallback.sealing_mining.infinite_pending_block,
-        );
-        self.flag_no_persistent_txqueue = Args::select_value(
-            cli_args.globals.sealing_mining.no_persistent_txqueue,
-            defaults.sealing_mining.no_persistent_txqueue,
-            fallback.sealing_mining.no_persistent_txqueue,
-        );
-        self.flag_stratum = Args::select_value(
-            cli_args.globals.sealing_mining.stratum,
-            defaults.sealing_mining.stratum,
-            fallback.sealing_mining.stratum,
-        );
-        self.flag_no_seal_check = Args::select_value(
-            cli_args.globals.import_export.no_seal_check,
-            defaults.import_export.no_seal_check,
-            fallback.import_export.no_seal_check,
-        );
-        self.flag_can_restart = Args::select_value(
-            cli_args.globals.internal.can_restart,
-            defaults.internal.can_restart,
-            fallback.internal.can_restart,
-        );
-        self.flag_no_color = Args::select_value(
-            cli_args.globals.miscellaneous.no_color,
-            defaults.miscellaneous.no_color,
-            fallback.miscellaneous.no_color,
-        );
-        self.flag_no_config = Args::select_value(
-            cli_args.globals.miscellaneous.no_config,
-            defaults.miscellaneous.no_config,
-            fallback.miscellaneous.no_config,
-        );
-        self.flag_scale_verifiers = Args::select_value(
-            cli_args.globals.footprint.scale_verifiers,
-            defaults.footprint.scale_verifiers,
-            fallback.footprint.scale_verifiers,
-        );
-        self.flag_no_periodic_snapshot = Args::select_value(
-            cli_args.globals.snapshot.no_periodic_snapshot,
-            defaults.snapshot.no_periodic_snapshot,
-            fallback.snapshot.no_periodic_snapshot,
-        );
-        self.flag_no_download = Args::select_value(
-            cli_args.globals.operating.no_download,
-            defaults.operating.no_download,
-            fallback.operating.no_download,
-        );
-        self.flag_no_consensus = Args::select_value(
-            cli_args.globals.operating.no_consensus,
-            defaults.operating.no_consensus,
-            fallback.operating.no_consensus,
-        );
-        self.flag_light = Args::select_value(
-            cli_args.globals.operating.light,
-            defaults.operating.light,
-            fallback.operating.light,
-        );
-        self.flag_no_hardcoded_sync = Args::select_value(
-            cli_args.globals.operating.light,
-            defaults.operating.light,
-            fallback.operating.light,
-        );
-        self.flag_force_direct = Args::select_value(
-            cli_args.globals.operating.force_direct,
-            defaults.operating.force_direct,
-            fallback.operating.force_direct,
-        );
-        self.flag_unsafe_expose = Args::select_value(
-            cli_args.globals.convenience.unsafe_expose,
-            defaults.convenience.unsafe_expose,
-            fallback.convenience.unsafe_expose,
-        );
-        self.flag_private_enabled = Args::select_value(
-            cli_args.globals.private_transactions.private_enabled,
-            defaults.private_transactions.private_enabled,
-            fallback.private_transactions.private_enabled,
-        );
-        self.flag_private_state_offchain = Args::select_value(
-            cli_args.globals.private_transactions.private_state_offchain,
-            defaults.private_transactions.private_state_offchain,
-            fallback.private_transactions.private_state_offchain,
-        );
-        self.flag_jsonrpc_allow_missing_blocks = Args::select_value(
-            cli_args.globals.http_json_rpc.jsonrpc_allow_missing_blocks,
-            defaults.http_json_rpc.jsonrpc_allow_missing_blocks,
-            fallback.http_json_rpc.jsonrpc_allow_missing_blocks,
-        );
-        self.flag_no_jsonrpc = Args::select_value(
-            cli_args.globals.http_json_rpc.no_jsonrpc,
-            defaults.http_json_rpc.no_jsonrpc,
-            fallback.http_json_rpc.no_jsonrpc,
-        );
-        self.flag_jsonrpc_no_keep_alive = Args::select_value(
-            cli_args.globals.http_json_rpc.jsonrpc_no_keep_alive,
-            defaults.http_json_rpc.jsonrpc_no_keep_alive,
-            fallback.http_json_rpc.jsonrpc_no_keep_alive,
-        );
-        self.flag_jsonrpc_experimental = Args::select_value(
-            cli_args.globals.http_json_rpc.jsonrpc_experimental,
-            defaults.http_json_rpc.jsonrpc_experimental,
-            fallback.http_json_rpc.jsonrpc_experimental,
-        );
-        self.flag_no_warp = Args::select_value(
-            cli_args.globals.networking.no_warp,
-            defaults.networking.no_warp,
-            fallback.networking.no_warp,
-        );
-        self.flag_no_discovery = Args::select_value(
-            cli_args.globals.networking.no_discovery,
-            defaults.networking.no_discovery,
-            fallback.networking.no_discovery,
-        );
-        self.flag_reserved_only = Args::select_value(
-            cli_args.globals.networking.reserved_only,
-            defaults.networking.reserved_only,
-            fallback.networking.reserved_only,
-        );
-        self.flag_no_ancient_blocks = Args::select_value(
-            cli_args.globals.networking.no_ancient_blocks,
-            defaults.networking.no_ancient_blocks,
-            fallback.networking.no_ancient_blocks,
-        );
-        self.flag_geth = Args::select_value(
-            cli_args.globals.legacy.geth,
-            defaults.legacy.geth,
-            fallback.legacy.geth,
-        );
-        self.flag_import_geth_keys = Args::select_value(
-            cli_args.globals.legacy.import_geth_keys,
-            defaults.legacy.import_geth_keys,
-            fallback.legacy.import_geth_keys,
-        );
 
         self.arg_config = Args::select_value(
             cli_args.globals.convenience.config,
@@ -738,11 +551,6 @@ impl Args {
             cli_args.globals.account.unlock,
             defaults.account.unlock,
             fallback.account.unlock,
-        );
-        self.arg_enable_signing_queue = Args::select_value(
-            cli_args.globals.account.enable_signing_queue,
-            defaults.account.enable_signing_queue,
-            fallback.account.enable_signing_queue,
         );
         self.arg_db_path = Args::select_option(
             cli_args.globals.operating.db_path,
@@ -1319,5 +1127,177 @@ impl Args {
             defaults.private_transactions.private_signer,
             fallback.private_transactions.private_signer,
         );
+    }
+
+    fn flags_from_globals(&mut self, cli_args: &ArgsInput, defaults: &Globals, fallback: &Globals) {
+        self.arg_enable_signing_queue = cli_args.globals.account.enable_signing_queue
+            || defaults.account.enable_signing_queue
+            || fallback.account.enable_signing_queue;
+
+        self.flag_fast_unlock = cli_args.globals.account.fast_unlock
+            || defaults.account.fast_unlock
+            || fallback.account.fast_unlock;
+
+        self.flag_no_serve_light = cli_args.globals.networking.no_serve_light
+            || defaults.networking.no_serve_light
+            || fallback.networking.no_serve_light;
+
+        self.flag_no_secretstore = cli_args.globals.secret_store.no_secretstore
+            || defaults.secret_store.no_secretstore
+            || fallback.secret_store.no_secretstore;
+
+        self.flag_no_secretstore_http = cli_args.globals.secret_store.no_secretstore_http
+            || defaults.secret_store.no_secretstore_http
+            || fallback.secret_store.no_secretstore_http;
+
+        self.flag_no_secretstore_auto_migrate =
+            cli_args.globals.secret_store.no_secretstore_auto_migrate
+                || defaults.secret_store.no_secretstore_auto_migrate
+                || fallback.secret_store.no_secretstore_auto_migrate;
+
+        self.flag_no_ws = cli_args.globals.websockets.no_ws
+            || defaults.websockets.no_ws
+            || fallback.websockets.no_ws;
+
+        self.flag_no_ipc =
+            cli_args.globals.ipc.no_ipc || defaults.ipc.no_ipc || fallback.ipc.no_ipc;
+
+        self.flag_force_sealing = cli_args.globals.sealing_mining.force_sealing
+            || defaults.sealing_mining.force_sealing
+            || fallback.sealing_mining.force_sealing;
+
+        self.flag_reseal_on_uncle = cli_args.globals.sealing_mining.reseal_on_uncle
+            || defaults.sealing_mining.reseal_on_uncle
+            || fallback.sealing_mining.reseal_on_uncle;
+
+        self.flag_remove_solved = cli_args.globals.sealing_mining.remove_solved
+            || defaults.sealing_mining.remove_solved
+            || fallback.sealing_mining.remove_solved;
+
+        self.flag_tx_queue_no_unfamiliar_locals = cli_args
+            .globals
+            .sealing_mining
+            .tx_queue_no_unfamiliar_locals
+            || defaults.sealing_mining.tx_queue_no_unfamiliar_locals
+            || fallback.sealing_mining.tx_queue_no_unfamiliar_locals;
+
+        self.flag_tx_queue_no_early_reject =
+            cli_args.globals.sealing_mining.tx_queue_no_early_reject
+                || defaults.sealing_mining.tx_queue_no_early_reject
+                || fallback.sealing_mining.tx_queue_no_early_reject;
+
+        self.flag_refuse_service_transactions =
+            cli_args.globals.sealing_mining.refuse_service_transactions
+                || defaults.sealing_mining.refuse_service_transactions
+                || fallback.sealing_mining.refuse_service_transactions;
+
+        self.flag_infinite_pending_block = cli_args.globals.sealing_mining.infinite_pending_block
+            || defaults.sealing_mining.infinite_pending_block
+            || fallback.sealing_mining.infinite_pending_block;
+
+        self.flag_no_persistent_txqueue = cli_args.globals.sealing_mining.no_persistent_txqueue
+            || defaults.sealing_mining.no_persistent_txqueue
+            || fallback.sealing_mining.no_persistent_txqueue;
+
+        self.flag_stratum = cli_args.globals.sealing_mining.stratum
+            || defaults.sealing_mining.stratum
+            || fallback.sealing_mining.stratum;
+
+        self.flag_no_seal_check = cli_args.globals.import_export.no_seal_check
+            || defaults.import_export.no_seal_check
+            || fallback.import_export.no_seal_check;
+
+        self.flag_can_restart = cli_args.globals.internal.can_restart
+            || defaults.internal.can_restart
+            || fallback.internal.can_restart;
+
+        self.flag_no_color = cli_args.globals.miscellaneous.no_color
+            || defaults.miscellaneous.no_color
+            || fallback.miscellaneous.no_color;
+
+        self.flag_no_config = cli_args.globals.miscellaneous.no_config
+            || defaults.miscellaneous.no_config
+            || fallback.miscellaneous.no_config;
+
+        self.flag_scale_verifiers = cli_args.globals.footprint.scale_verifiers
+            || defaults.footprint.scale_verifiers
+            || fallback.footprint.scale_verifiers;
+
+        self.flag_no_periodic_snapshot = cli_args.globals.snapshot.no_periodic_snapshot
+            || defaults.snapshot.no_periodic_snapshot
+            || fallback.snapshot.no_periodic_snapshot;
+
+        self.flag_no_download = cli_args.globals.operating.no_download
+            || defaults.operating.no_download
+            || fallback.operating.no_download;
+
+        self.flag_no_consensus = cli_args.globals.operating.no_consensus
+            || defaults.operating.no_consensus
+            || fallback.operating.no_consensus;
+
+        self.flag_light = cli_args.globals.operating.light
+            || defaults.operating.light
+            || fallback.operating.light;
+
+        self.flag_no_hardcoded_sync = cli_args.globals.operating.light
+            || defaults.operating.light
+            || fallback.operating.light;
+
+        self.flag_force_direct = cli_args.globals.operating.force_direct
+            || defaults.operating.force_direct
+            || fallback.operating.force_direct;
+
+        self.flag_unsafe_expose = cli_args.globals.convenience.unsafe_expose
+            || defaults.convenience.unsafe_expose
+            || fallback.convenience.unsafe_expose;
+
+        self.flag_private_enabled = cli_args.globals.private_transactions.private_enabled
+            || defaults.private_transactions.private_enabled
+            || fallback.private_transactions.private_enabled;
+
+        self.flag_private_state_offchain =
+            cli_args.globals.private_transactions.private_state_offchain
+                || defaults.private_transactions.private_state_offchain
+                || fallback.private_transactions.private_state_offchain;
+
+        self.flag_jsonrpc_allow_missing_blocks =
+            cli_args.globals.http_json_rpc.jsonrpc_allow_missing_blocks
+                || defaults.http_json_rpc.jsonrpc_allow_missing_blocks
+                || fallback.http_json_rpc.jsonrpc_allow_missing_blocks;
+
+        self.flag_no_jsonrpc = cli_args.globals.http_json_rpc.no_jsonrpc
+            || defaults.http_json_rpc.no_jsonrpc
+            || fallback.http_json_rpc.no_jsonrpc;
+
+        self.flag_jsonrpc_no_keep_alive = cli_args.globals.http_json_rpc.jsonrpc_no_keep_alive
+            || defaults.http_json_rpc.jsonrpc_no_keep_alive
+            || fallback.http_json_rpc.jsonrpc_no_keep_alive;
+
+        self.flag_jsonrpc_experimental = cli_args.globals.http_json_rpc.jsonrpc_experimental
+            || defaults.http_json_rpc.jsonrpc_experimental
+            || fallback.http_json_rpc.jsonrpc_experimental;
+
+        self.flag_no_warp = cli_args.globals.networking.no_warp
+            || defaults.networking.no_warp
+            || fallback.networking.no_warp;
+
+        self.flag_no_discovery = cli_args.globals.networking.no_discovery
+            || defaults.networking.no_discovery
+            || fallback.networking.no_discovery;
+
+        self.flag_reserved_only = cli_args.globals.networking.reserved_only
+            || defaults.networking.reserved_only
+            || fallback.networking.reserved_only;
+
+        self.flag_no_ancient_blocks = cli_args.globals.networking.no_ancient_blocks
+            || defaults.networking.no_ancient_blocks
+            || fallback.networking.no_ancient_blocks;
+
+        self.flag_geth =
+            cli_args.globals.legacy.geth || defaults.legacy.geth || fallback.legacy.geth;
+
+        self.flag_import_geth_keys = cli_args.globals.legacy.import_geth_keys
+            || defaults.legacy.import_geth_keys
+            || fallback.legacy.import_geth_keys;
     }
 }
